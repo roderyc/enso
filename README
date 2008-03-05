@@ -1,0 +1,26 @@
+Enso Readme
+===========
+
+In order to build and run Enso, you'll first need to set up a
+platform-specific backend.
+
+At present, there's only one such backend, for Mac OS X.  It's located
+in the 'osx' directory; for setup instructions, please see
+'osx/README'.
+
+Once that's done, you'll have to set up and run Enso itself.  You can
+find information on how to do this in 'core/README'.
+
+Good luck!
+
+Other Resources
+---------------
+
+The latest version of the code can always be found at:
+
+    http://code.google.com/p/enso/
+
+If you have any questions, please feel free to check out
+the enso-developers group:
+
+    http://groups.google.com/group/enso-developers
