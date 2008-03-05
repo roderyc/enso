@@ -1,0 +1,24 @@
+# ----------------------------------------------------------------------------
+#
+#   enso_osx SConstruct
+#
+# ----------------------------------------------------------------------------
+
+import sys
+
+ccBaseFlags = [
+    "-Wall",     # GCC: Display all warnings.
+    "-Werror",   # GCC: Treat warnings as errors.
+]
+
+env = Environment(
+    CCFLAGS = ccBaseFlags,
+    )
+
+# Add the Python library to our environment.
+env.Append(
+    CPPPATH = sys.prefix + "/include/python" + sys.version[:3],
+    LIBPATH = sys.prefix + "/lib/python" + sys.version[:3],
+    )
+
+SConscript( "src/SConscript", exports="env" )

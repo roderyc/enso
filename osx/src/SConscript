@@ -1,0 +1,84 @@
+# ----------------------------------------------------------------------------
+#
+#   enso_osx.graphics SConscript
+#
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Imports
+# ----------------------------------------------------------------------------
+
+Import( "env" )
+
+import os
+import sys
+import subprocess
+
+
+# ----------------------------------------------------------------------------
+# Helper Functions
+# ----------------------------------------------------------------------------
+
+def getOutput( params ):
+    """
+    Runs the given program, as specified by the parameter list.  Raises an
+    exception with stderr output if the process has a nonzero return
+    code.  Otherwise, it returns the stdout of the process as a string.
+    """
+
+    popen = subprocess.Popen( params,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE )
+    output, errors = popen.communicate()
+    if popen.returncode != 0:
+        sys.stderr.write( "Running '%s' failed.\n" % " ".join(params) )
+        sys.stderr.write( "Output was:\n%s\n(end of output)\n" % errors )
+        raise SystemError()
+    return output
+
+
+# ----------------------------------------------------------------------------
+# Build Actions
+# ----------------------------------------------------------------------------
+
+# quartz cairo bridge
+
+cairoLibFlags = getOutput( ["pkg-config", "cairo", "--libs"] )
+cairoIncludeFlags = getOutput( ["pkg-config", "cairo", "--cflags"] )
+
+qcbEnv = env.Copy()
+
+qcbEnv.Append(
+    CPPPATH=["pycairo"],
+    CCFLAGS=cairoIncludeFlags.split(),
+    LINKFLAGS=cairoLibFlags,
+    LIBS=["python", "cairo"],
+    FRAMEWORKS=["AppKit"],
+    )
+
+quartzCairoBridge = qcbEnv.LoadableModule(
+    source = ["quartz_cairo_bridge.m"],
+    target = ["quartz_cairo_bridge.so"],
+    )
+
+qcbEnv.Install( "#enso_osx", quartzCairoBridge )
+
+# key notifier
+
+keyNotifier = env.Program(
+    source = ["EnsoKeyNotifier.m"],
+    FRAMEWORKS = ["ApplicationServices", "Foundation"]
+    )
+
+env.Install( "#bin", keyNotifier )
+
+# Pycairo
+
+pycairoEnv = env.Copy()
+
+pycairoEnv.Append(
+    CCFLAGS=cairoIncludeFlags.split(),
+    LINKFLAGS=cairoLibFlags
+    )
+
+SConscript( "pycairo/SConscript", exports="pycairoEnv" )

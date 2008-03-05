@@ -1,0 +1,35 @@
+Enso OS X Readme
+================
+
+To build the Enso OS X backend, you need:
+
+  * Mac OS X 10.5 (Leopard)
+    This operating system comes packaged with an appropriate version
+    of Python, as well as a number of OS X-specific Python modules
+    needed by the backend.  The backend may also use some features of
+    OS X that are only available in OS X 10.5, but this has not been
+    verified; as such, it may be possible to run the backend on
+    an earlier, properly-configured version of OS X.
+
+  * Apple XCode tools
+    This is needed for the gcc toolchain.
+
+  * SCons
+    This open-source, python-based build tool can be found at
+    http://www.scons.org.
+
+  * cairo w/ experimental Quartz integration
+    This can be obtained through fink or macports.  Make sure you
+    provide the proper flags to enable the experimental Quartz
+    backend.
+
+To build the backend, run 'scons' from the root directory of the
+source tree.
+
+For the time being, to install the backend, you need to add the root
+directory of the OS X backend source tree to your PYTHONPATH environment
+variable.
+
+Finally, in order for quasimodal keypresses to be properly detected on
+OS X, you must enable access for assistive devices in the Universal
+Access System Preferences.

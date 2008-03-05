@@ -1,0 +1,15 @@
+Import( "pycairoEnv" )
+
+import glob
+
+sourceList = [
+    glob.glob( "*.c" )
+    ]
+
+pycairoLib = pycairoEnv.LoadableModule(
+    target="_cairo.so",
+    source=sourceList,
+    LIBS=["python", "cairo"]
+    )
+
+pycairoEnv.Install( "#enso_osx/cairo", pycairoLib )
