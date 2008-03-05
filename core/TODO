@@ -1,0 +1,20 @@
+Things to do:
+
+* enso.quasimode.charmaps mentions windows vkCodes; this is
+  platform-specific and ideally shouldn't be.  I think this goes back
+  to some big issue we had regarding how to refactor Enso's input
+  handling, but I forget what it was.
+
+* the setQuasimodeKey() and setModal() methods in enso.quasimode
+  are very odd; see if we can eliminate them.
+
+* Lots of constants are in enso.quasimode.layout that might
+  best be moved to enso.config.
+
+* There are some constants in enso.messages.primarywindow
+  that we may want to move to enso.config.  Also consider moving
+  the styles for document, p, caption tags, etc.
+
+* Consider moving some constants in enso.messages.miniwindows too.
+
+* Consider turning LONGTERM TODOs in source code into TODOs.
