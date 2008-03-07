@@ -16,3 +16,6 @@ No build step is currently required for Enso--it's all pure Python
 source code.
 
 To run Enso, just execute scripts/run_enso.py.
+There's also a distutils-based install script to install Enso system-wide.
+To use it, just run
+    python setup.py install
