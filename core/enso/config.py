@@ -2,6 +2,8 @@
 # localization into account too (or we can make a separate module for
 # such strings).
 
+import sys
+
 # The keycode for the quasimode key.
 # TODO: Where are keycodes specified?
 QUASIMODE_KEYCODE = 1
