@@ -152,8 +152,8 @@ class TextWindow:
         # odd, since the alpha value is not being set.  It is a
         # wierdness of Cairo. -- Andrew
 
-        self.__context.rectangle( 0, 0, 1, 1 )
-        self.__context.set_source_rgb( 0, 0, 0 )
-        self.__context.paint()
+        self.__context.set_operator (cairo.OPERATOR_CLEAR)
+        self.__context.paint ()
+        self.__context.set_operator (cairo.OPERATOR_OVER)
 
         self.__window.update()
