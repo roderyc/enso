@@ -56,7 +56,16 @@ MINI_MSG_HELP_XML = "<p>The <command>hide mini messages</command>" \
 
 # List of modules/packages that support the provider interface to
 # provide required platform-specific functionality to Enso.
-PROVIDERS = ["enso_osx"]
+PROVIDERS = []
+if not len (PROVIDERS):
+    platform = sys.platform
+    if platform.startswith ("linux") or platform.startswith ("openbsd") \
+    or platform.startswith ("freebsd") or platform.startswith ("netbsd"):
+        PROVIDERS = ["enso_linux"]
+    elif platform.startswith ("darwin") or platform.startswith ("mac"):
+        PROVIDERS = ["enso_osx"]
+    elif platform.startswith ("win"):
+        PROVIDERS = ["enso_windows"]
 
 # List of modules/packages that support the plugin interface to
 # extend Enso.  The plugins are loaded in the order that they
