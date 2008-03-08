@@ -2,8 +2,6 @@
 # localization into account too (or we can make a separate module for
 # such strings).
 
-import sys
-
 # The keycode for the quasimode key.
 # TODO: Where are keycodes specified?
 QUASIMODE_KEYCODE = 1
@@ -57,17 +55,11 @@ MINI_MSG_HELP_XML = "<p>The <command>hide mini messages</command>" \
     " these mini-messages.</p>"
 
 # List of modules/packages that support the provider interface to
-# provide required platform-specific functionality to Enso.
-PROVIDERS = []
-if not len (PROVIDERS):
-    platform = sys.platform
-    if platform.startswith ("linux") or platform.startswith ("openbsd") \
-    or platform.startswith ("freebsd") or platform.startswith ("netbsd"):
-        PROVIDERS = ["enso_linux"]
-    elif platform.startswith ("darwin") or platform.startswith ("mac"):
-        PROVIDERS = ["enso_osx"]
-    elif platform.startswith ("win"):
-        PROVIDERS = ["enso_windows"]
+# provide required platform-specific functionality to Enso.  Some of
+# these modules may not exist on the target platform; if they don't,
+# then they're ignored.  This means that you can just install
+# whichever ones you need and Enso will "just work".
+PROVIDERS = ["enso_osx", "enso_linux", "enso_windows"]
 
 # List of modules/packages that support the plugin interface to
 # extend Enso.  The plugins are loaded in the order that they
