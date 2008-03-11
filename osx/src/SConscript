@@ -72,6 +72,16 @@ keyNotifier = env.Program(
 
 env.Install( "#bin", keyNotifier )
 
+# key utils
+
+keyUtils = env.LoadableModule(
+    source = ["key_utils.m"],
+    target = ["key_utils.so"],
+    FRAMEWORKS = ["ApplicationServices"]
+    )
+
+env.Install( "#enso_osx/selection", keyUtils )
+
 # Pycairo
 
 pycairoEnv = env.Copy()
