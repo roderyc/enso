@@ -50,6 +50,7 @@
 
 import weakref
 import logging
+import traceback
 
 from enso import messages
 from enso import config
@@ -371,11 +372,9 @@ class Quasimode:
             cmd.run()
         except Exception:
             # An exception occured during the execution of the command.
-            import Logging
-
             logging.error( "Command \"%s\" failed." % cmdName )
-            Logging.logAndRaiseCurrentException()
-
+            logging.error( traceback.format_exc() )
+            raise
 
     def __showBadCommandMsg( self, userText ):
         """
