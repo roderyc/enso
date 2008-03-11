@@ -112,23 +112,6 @@ def _equivalizeChars( userText ):
 # Prefix Command Factory
 # ----------------------------------------------------------------------------
 
-class NoArgumentCommand( CommandObject ):
-    """
-    The command executed when the end-user simply types 'learn as
-    open' without specifying a target name.
-    """
-
-    def __init__( self, description, message ):
-        CommandObject.__init__( self )
-        self.setDescription( description )
-        self.message = message
-
-    def run( self ):
-        # TODO: This single call couples this whole module to the
-        # enso.messages module; any way to avoid this?
-        displayMessage( self.message )
-
-
 class GenericPrefixFactory( AbstractCommandFactory ):
     """
     Uses a postfix-prefix system to generate autocompletions and
@@ -155,12 +138,6 @@ class GenericPrefixFactory( AbstractCommandFactory ):
     # the top line of the quasimode when a concrete parameter has
     # not been displayed.
     DESCRIPTION_TEXT = None
-
-    # This class variable defines the "error message text"
-    # displayed as a primary message if the user fails to
-    # type an argument.
-    # LONGTERM TODO: Decide whether having a default is acceptable.
-    MESSAGE_TEXT = "<p>That command requires an argument.</p>"
 
     def __init__( self ):
         """
@@ -347,47 +324,25 @@ class GenericPrefixFactory( AbstractCommandFactory ):
         prefix = self.PREFIX
         if ( len( commandName ) > len( prefix ) ) and \
                commandName.startswith( prefix ):
-            return self._generateCommandObj( commandName )
+            parameter = commandName.split( self.PREFIX, 1 )[1]
+            return self._generateCommandObj( parameter )
         elif commandName.startswith( prefix ) or \
              prefix.startswith( commandName ):
-            return self._generateFailedCommandObj()
+            parameter = None
+            return self._generateCommandObj( parameter )
         else:
             return None
 
 
-    def _generateCommandObj( self, commandName ):
+    def _generateCommandObj( self, postfix ):
         """
         Virtual method for getting an actual command object.
+        'postfix' is the name of the postfix supplied, if any.
 
         Must be overriden by subclasses.
         """
 
-        # TODO: These assertions won't actually get called by
-        # subclasses that implement this method...  Use the template
-        # method pattern here?
-        assert len( commandName ) > self.PREFIX
-        assert commandName.startswith( self.PREFIX )
-
         raise NotImplementedError()
-
-
-    def _generateFailedCommandObj( self ):
-        """
-        Method called when the requested command name
-        does not actually have a postfix.
-
-        NOTE: A very good general behavior is built in, but
-        should a different behavior be required in the event
-        of no argument (e.g., "define "), then this method
-        may be overridden.
-        """
-
-        assert self.DESCRIPTION_TEXT != None
-
-        return NoArgumentCommand( self.DESCRIPTION_TEXT,
-                                  self.MESSAGE_TEXT )
-        
-
 
 
 class ArbitraryPostfixFactory( GenericPrefixFactory ):
