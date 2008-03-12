@@ -329,18 +329,8 @@ class Quasimode:
         logging.info( "Deleting the quasimode window." )
 
         # Delete the Quasimode window.
-        # NOTE: The object referred to by this private variable name is
-        # only referred to by this class.  Assuming that calls from the
-        # actual QuasimodeWindow object never result in references to
-        # that object existing in other objects or modules, then
-        # setting self.__quasimodeWindow to None results in the
-        # object's reference count going to zero, and the object being
-        # destroyed.
-        # To verify this, we create a weakref to the window, and check
-        # that it returns None.
-        tempWindowRef = weakref.ref( self.__quasimodeWindow )
+        del self.__quasimodeWindow
         self.__quasimodeWindow = None
-        assert tempWindowRef() == None, "QuasimodeWindow wasn't destroyed!"
 
         activeCommand = self.__suggestionList.getActiveCommand()
         userText = self.__suggestionList.getUserText()
