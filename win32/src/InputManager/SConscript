@@ -1,0 +1,150 @@
+# ----------------------------------------------------------------------------
+# Copyright (c) 2005 Humanized, Inc. All rights reserved.
+# ----------------------------------------------------------------------------
+#
+#   SConscript
+#   Maintainer: Jono DiCarlo
+#
+#   Python Version - 2.4
+#
+#   This is the InputManager SConscript file.
+#
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Imports
+# ----------------------------------------------------------------------------
+
+Import("env")
+
+
+# ----------------------------------------------------------------------------
+# The Keyhook DLL
+# ----------------------------------------------------------------------------
+
+inputEnv = env.Copy()
+
+inputEnv.Append(
+    # Enable run-type type information (RTTI), needed by the SWIG
+    # directors that allow Python to subclass C++ classes.
+    CCFLAGS = "/GR",
+    )
+
+dllFile, keyhookLibFile, expFile = \
+         inputEnv.SharedLibrary( target="Keyhook.dll",
+                                 source=["KeyhookDll.c"],
+                                 LIBS=["User32"],
+                                )
+
+inputEnv.Install( "${BASE_INSTALL_DIR}",
+                  dllFile )
+
+# ----------------------------------------------------------------------------
+# The EnsoThread Static Library
+# ----------------------------------------------------------------------------
+
+# This is compiled into a static library so that multiple modules can
+# use it.
+
+sources = [
+    "EnsoThread.cxx",
+    ]
+
+ensoThreadLib = env.StaticLibrary(
+    source = sources
+    )
+
+inputEnv.Install( "${LIB_INSTALL_DIR}",
+                  ensoThreadLib );
+
+
+# ----------------------------------------------------------------------------
+# The AsyncEventProcessorRegistry DLL
+# ----------------------------------------------------------------------------
+
+cppDefines = {
+    "ASYNC_EVENT_USE_DL_EXPORT" : "1",
+    }
+dllFile, asyncLibFile, expFile = \
+         inputEnv.SharedLibrary( target = "AsyncEventProcessorRegistry",
+                                 source = ["AsyncEventProcessorRegistry.cxx"],
+                                 LIBS = ["User32", "CLogging"],
+                                 CPPDEFINES = cppDefines)
+inputEnv.Install( "${LIB_INSTALL_DIR}",
+                  asyncLibFile );
+inputEnv.Install( "${BASE_INSTALL_DIR}",
+                  dllFile );
+
+# ----------------------------------------------------------------------------
+# The AsyncEventThread Static Library
+# ----------------------------------------------------------------------------
+
+# This is compiled into a static library mainly so that multiple
+# testing suites can use it.
+
+sources = [
+    "AsyncEventThread.cxx",
+    ]
+
+asyncEventThreadLib = env.StaticLibrary(
+    source = sources,
+    )
+
+inputEnv.Install( "${LIB_INSTALL_DIR}",
+                  asyncEventThreadLib );
+
+# ----------------------------------------------------------------------------
+# The AsyncEventThread Python C Extension Module
+# ----------------------------------------------------------------------------
+
+pydFile, pyFile = inputEnv.buildSwigExtension(
+    swigInterfaceFile = "AsyncEventThread.i",
+    LIBS = [ "User32",
+             "CLogging",
+             "asyncEventProcessorRegistry",
+             "EnsoThread",
+             asyncEventThreadLib]
+    )
+
+
+inputEnv.Install( "${INPUT_INSTALL_DIR}", pyFile )
+inputEnv.Install( "${INPUT_INSTALL_DIR}", pydFile )
+
+
+# ----------------------------------------------------------------------------
+# The InputManager DLL + SWIG Python Wrapper
+# ----------------------------------------------------------------------------
+
+sources = [
+    "InputManager.cxx",
+    "HookHandlers.c",
+    "TrayIconManager.cxx",
+    "ExitHandler.c"
+    ]
+
+libs = [
+    "User32",
+    "Shell32",
+    "CLogging",
+    "AsyncEventProcessorRegistry",
+    keyhookLibFile,
+    ]
+
+pydFile, pyFile = inputEnv.buildSwigExtension(
+    swigInterfaceFile = "InputManager.i",
+    source = sources,
+    LIBS = libs
+    )
+
+inputEnv.Install( "${INPUT_INSTALL_DIR}", pyFile )
+inputEnv.Install( "${INPUT_INSTALL_DIR}", pydFile )
+
+# ----------------------------------------------------------------------------
+# CxxTester Stuff
+# ----------------------------------------------------------------------------
+
+cppFile = inputEnv.CxxTest( "AsyncEventProcessorRegistryCTester" )
+asyncCTester = inputEnv.Program( target = "AsyncEventProcessorRegistryCTester",
+                                 source = [cppFile],
+                                 LIBS = [ "AsyncEventProcessorRegistry",
+                                          "CLogging"] )

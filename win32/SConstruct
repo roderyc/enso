@@ -1,0 +1,209 @@
+# ----------------------------------------------------------------------------
+# Copyright (c) 2005 Humanized, Inc. All rights reserved.
+# ----------------------------------------------------------------------------
+#
+#   SConstruct
+#   Maintainer: Atul Varma
+#
+#   Python Version - 2.4
+#
+#   This is the Mehitabel Core SConstruct file.  Here we define all
+#   command-line options, as well as the default environment and
+#   builders that are used by the rest of the Mehitabel Core project.
+#
+#   Note that it is presently assumed that this SConstruct is executed
+#   within the Enso Development System (EDS) virtual machine.
+#
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Imports
+# ----------------------------------------------------------------------------
+
+import os
+import re
+
+import BuildEnvironment
+
+
+# ----------------------------------------------------------------------------
+# C/C++ Defines
+# ----------------------------------------------------------------------------
+
+# Here we turn on ENSO_DEBUG even if DEBUG is off, so that Enso debug log
+# messages will still be logged.
+cppBaseDefines = {
+    "ENSO_DEBUG" : "1",
+    "WIN32" : "1",
+    "_WINDOWS" : "1",
+    }
+
+cppDebugDefines = {
+    }
+
+cppNoDebugDefines = {
+    "NDEBUG" : "1",
+    }
+
+
+# ----------------------------------------------------------------------------
+# C/C++ Compiler Options
+# ----------------------------------------------------------------------------
+
+# Documentation on Visual C++ Compiler Options can be found here:
+# http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore/html/_core_compiler_reference.asp
+
+ccBaseFlags = [
+    "/EHsc",    # Synchronous exception handling, assume extern C functions
+                # never throw exceptions.
+    "/W3",      # Set warning level (max is 4, min is 0)
+    "/WX",      # Treat all warnings as errors
+    "/nologo",  # Suppress display of sign-on banner
+    "/Zi",      # Produce a program database (PDB) that contains type
+                # information and symbolic debugging information for use
+                # with the debugger.
+    ]
+
+ccDebugFlags = [
+    "/MD",      # Use dynamically-linked msvcrt for C runtime
+                # We're not using the debug version of the msvcrt because
+                # it raises complications with linking to Python and because
+                # we don't really need the debugging support provided by
+                # the CRT.
+    "/Od",      # Disable optimization
+    ]
+
+ccNoDebugFlags = [
+    "/O2",      # Enable optimizations
+    "/MD",      # Use dynamically-linked msvcrt for C runtime
+    "/Ob1",     # Inline expansion only for functions marked as inline
+    "/GF",      # Pool strings as read-only
+    "/Gy",      # Enable function-level linking
+    ]
+
+
+# ----------------------------------------------------------------------------
+# C/C++ Linker Options
+# ----------------------------------------------------------------------------
+
+linkBaseFlags = [
+    "/nologo",
+    "/DEBUG",   # Create .pdb file containing debugging information
+    ]
+
+linkDebugFlags = [
+    ]
+
+linkNoDebugFlags = [
+    ]
+
+
+# ----------------------------------------------------------------------------
+# Base Environment Definition
+# ----------------------------------------------------------------------------
+
+baseEnv = Environment(
+    # Standard environment variables used by SCons.
+    CPPDEFINES = cppBaseDefines,
+    CPPPATH = [],
+    LIBPATH = [],
+    CCFLAGS = ccBaseFlags,
+    LINKFLAGS = linkBaseFlags,
+
+    # Our custom environment variables used by our
+    # SConstruct/SConscript files.
+    BASE_INSTALL_DIR = "#",
+    INPUT_INSTALL_DIR = "#Input",
+    CLIPBOARD_INSTALL_DIR = "#Contexts",
+    LIB_INSTALL_DIR = "#Lib",
+    RESOURCES_DIR = "#Resources",
+    )
+
+BuildEnvironment.current.mergeInto( baseEnv )
+
+
+# ----------------------------------------------------------------------------
+# Tools
+# ----------------------------------------------------------------------------
+
+baseEnv.Tool( "NsisTool", toolpath = ["SConsTools"] )
+baseEnv.Tool( "SwigTool", toolpath = ["SConsTools"] )
+baseEnv.Tool( "CxxTestTool", toolpath = ["SConsTools"] )
+baseEnv.Tool( "SignCodeTool", toolpath = ["SConsTools"] )
+baseEnv.Tool( "ManifestTool", toolpath = ["SConsTools"] )
+baseEnv.Tool( "HumanizedUtilsTool", toolpath = ["SConsTools"] )
+
+
+# ----------------------------------------------------------------------------
+# Library Definitions
+# ----------------------------------------------------------------------------
+
+# Python
+baseEnv.addLib(
+    basePath = baseEnv["PYTHON_BASE_PATH"],
+    libPath = "libs",
+    includePath = "include",
+    )
+
+# Our own built libraries
+baseEnv.addLib(
+    libPath = baseEnv["LIB_INSTALL_DIR"],
+    includePath = "#Include"
+    )
+
+
+# ----------------------------------------------------------------------------
+# Debug/Non-Debug Environments
+# ----------------------------------------------------------------------------
+
+# Take the base environment and create specialized debug and non-debug
+# environments out of them.
+
+debugEnv = baseEnv.Copy()
+noDebugEnv = baseEnv.Copy()
+
+debugEnv.Append(
+    CPPDEFINES = cppDebugDefines,
+    CCFLAGS = ccDebugFlags,
+    LINKFLAGS = linkDebugFlags
+    )
+
+noDebugEnv.Append(
+    CPPDEFINES = cppNoDebugDefines,
+    CCFLAGS = ccNoDebugFlags,
+    LINKFLAGS = linkNoDebugFlags
+    )
+
+# Depending on whether we're building for debugging or release, set
+# the active environment to the debug or non-debug environment.
+
+if baseEnv["DEBUG"] == 1:
+    env = debugEnv
+else:
+    env = noDebugEnv
+
+
+# ----------------------------------------------------------------------------
+# Build Actions
+# ----------------------------------------------------------------------------
+
+kfe = env.Program( "_KillFrozenEnso.c", LIBS=["User32", "Gdi32", "Kernel32"] )
+env.EmbedManifest( kfe, "StandardExecutable.manifest" )
+env.SignCode( kfe )
+
+SConscript( "Logging/SConscript", exports="env" )
+SConscript( "Input/InputManager/SConscript", exports="env" )
+SConscript( "Contexts/ClipboardBackend/SConscript", exports="env" )
+SConscript( "Contexts/WindowManipulationBackend/SConscript", exports="env" )
+SConscript( "Graphics/SConscript", exports="env" )
+SConscript( "Utils/Twofish/SConscript", exports="env" )
+SConscript( "py2exe/SConscript", exports="env" )
+SConscript( "Dev/SConscript", exports="env" )
+SConscript( "CrashCatcher/SConscript", exports="env" )
+SConscript( "Crypto/Util/SConscript", exports="env" )
+SConscript( "pyAA/SConscript", exports="env" )
+SConscript( "AutoProxy/SConscript", exports="env" )
+SConscript( "Dtwinver/SConscript", exports="env" )
+SConscript( "BetaProducts/Production/EnsoLauncher2/Autocompleter/SConscript", exports="env" )
+SConscript( "BetaProducts/Production/EnsoMediaRemoteControl/" \
+            "SConscript", exports="env" )
