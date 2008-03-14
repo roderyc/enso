@@ -23,9 +23,6 @@
 import os
 import re
 
-import BuildEnvironment
-
-
 # ----------------------------------------------------------------------------
 # C/C++ Defines
 # ----------------------------------------------------------------------------
@@ -112,27 +109,21 @@ baseEnv = Environment(
 
     # Our custom environment variables used by our
     # SConstruct/SConscript files.
-    BASE_INSTALL_DIR = "#",
-    INPUT_INSTALL_DIR = "#Input",
-    CLIPBOARD_INSTALL_DIR = "#Contexts",
-    LIB_INSTALL_DIR = "#Lib",
-    RESOURCES_DIR = "#Resources",
+    BASE_INSTALL_DIR = "#enso_win32",
+    INPUT_INSTALL_DIR = "#enso_win32/Input",
+    LIB_INSTALL_DIR = "#enso_win32",
+    BASE_PYTHON_DIR = "C:\\Python24",
+    DEBUG = 0
     )
 
-BuildEnvironment.current.mergeInto( baseEnv )
 
 
 # ----------------------------------------------------------------------------
 # Tools
 # ----------------------------------------------------------------------------
 
-baseEnv.Tool( "NsisTool", toolpath = ["SConsTools"] )
 baseEnv.Tool( "SwigTool", toolpath = ["SConsTools"] )
-baseEnv.Tool( "CxxTestTool", toolpath = ["SConsTools"] )
-baseEnv.Tool( "SignCodeTool", toolpath = ["SConsTools"] )
-baseEnv.Tool( "ManifestTool", toolpath = ["SConsTools"] )
 baseEnv.Tool( "HumanizedUtilsTool", toolpath = ["SConsTools"] )
-
 
 # ----------------------------------------------------------------------------
 # Library Definitions
@@ -140,7 +131,7 @@ baseEnv.Tool( "HumanizedUtilsTool", toolpath = ["SConsTools"] )
 
 # Python
 baseEnv.addLib(
-    basePath = baseEnv["PYTHON_BASE_PATH"],
+    basePath = baseEnv[ "BASE_PYTHON_DIR" ],
     libPath = "libs",
     includePath = "include",
     )
@@ -187,23 +178,4 @@ else:
 # Build Actions
 # ----------------------------------------------------------------------------
 
-kfe = env.Program( "_KillFrozenEnso.c", LIBS=["User32", "Gdi32", "Kernel32"] )
-env.EmbedManifest( kfe, "StandardExecutable.manifest" )
-env.SignCode( kfe )
-
-SConscript( "Logging/SConscript", exports="env" )
-SConscript( "Input/InputManager/SConscript", exports="env" )
-SConscript( "Contexts/ClipboardBackend/SConscript", exports="env" )
-SConscript( "Contexts/WindowManipulationBackend/SConscript", exports="env" )
-SConscript( "Graphics/SConscript", exports="env" )
-SConscript( "Utils/Twofish/SConscript", exports="env" )
-SConscript( "py2exe/SConscript", exports="env" )
-SConscript( "Dev/SConscript", exports="env" )
-SConscript( "CrashCatcher/SConscript", exports="env" )
-SConscript( "Crypto/Util/SConscript", exports="env" )
-SConscript( "pyAA/SConscript", exports="env" )
-SConscript( "AutoProxy/SConscript", exports="env" )
-SConscript( "Dtwinver/SConscript", exports="env" )
-SConscript( "BetaProducts/Production/EnsoLauncher2/Autocompleter/SConscript", exports="env" )
-SConscript( "BetaProducts/Production/EnsoMediaRemoteControl/" \
-            "SConscript", exports="env" )
+SConscript( "src/InputManager/SConscript", exports="env" )

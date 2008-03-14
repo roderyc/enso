@@ -138,13 +138,3 @@ pydFile, pyFile = inputEnv.buildSwigExtension(
 
 inputEnv.Install( "${INPUT_INSTALL_DIR}", pyFile )
 inputEnv.Install( "${INPUT_INSTALL_DIR}", pydFile )
-
-# ----------------------------------------------------------------------------
-# CxxTester Stuff
-# ----------------------------------------------------------------------------
-
-cppFile = inputEnv.CxxTest( "AsyncEventProcessorRegistryCTester" )
-asyncCTester = inputEnv.Program( target = "AsyncEventProcessorRegistryCTester",
-                                 source = [cppFile],
-                                 LIBS = [ "AsyncEventProcessorRegistry",
-                                          "CLogging"] )
