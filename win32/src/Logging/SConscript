@@ -21,6 +21,8 @@ import os
 # ----------------------------------------------------------------------------
 
 loggingEnv = env.Copy()
+
+print "loggingEnv[CPPPATH] is: ", loggingEnv[ "CPPPATH" ]
 cppDefines = {
     "LOGGING_USE_DL_EXPORT" : "1",
     }
@@ -57,13 +59,3 @@ pydFile, pyFile = env.buildSwigExtension(
 loggingEnv.Install( "${BASE_INSTALL_DIR}",
                     [pydFile, pyFile] )
 
-
-# ----------------------------------------------------------------------------
-# Logging Testers
-# ----------------------------------------------------------------------------
-
-# Use CxxTest to create a C++ test suite for Logging.
-cppFile = loggingEnv.CxxTest( "LoggingCTester" )
-loggingCTester = loggingEnv.Program( target = "LoggingCTester",
-                                     source = [cppFile],
-                                     LIBS = libs )

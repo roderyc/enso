@@ -139,8 +139,8 @@ baseEnv.addLib(
 
 # Our own built libraries
 baseEnv.addLib(
-    libPath = baseEnv["BASE_INCLUDE_DIR"],
-    includePath = "#Include"
+    libPath = baseEnv["LIB_INSTALL_DIR"],
+    includePath = "#src/Include"
     )
 
 
@@ -180,4 +180,4 @@ else:
 # ----------------------------------------------------------------------------
 
 SConscript( "src/Logging/SConscript", exports="env" )
-SConscript( "src/InputManager/SConscript", exports="env" )
+# SConscript( "src/InputManager/SConscript", exports="env" )
