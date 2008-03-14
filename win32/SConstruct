@@ -112,6 +112,7 @@ baseEnv = Environment(
     BASE_INSTALL_DIR = "#enso_win32",
     INPUT_INSTALL_DIR = "#enso_win32/Input",
     LIB_INSTALL_DIR = "#enso_win32",
+    BASE_INCLUDE_DIR = "#src",
     BASE_PYTHON_DIR = "C:\\Python24",
     DEBUG = 0
     )
@@ -138,7 +139,7 @@ baseEnv.addLib(
 
 # Our own built libraries
 baseEnv.addLib(
-    libPath = baseEnv["LIB_INSTALL_DIR"],
+    libPath = baseEnv["BASE_INCLUDE_DIR"],
     includePath = "#Include"
     )
 
@@ -178,4 +179,5 @@ else:
 # Build Actions
 # ----------------------------------------------------------------------------
 
+SConscript( "src/Logging/SConscript", exports="env" )
 SConscript( "src/InputManager/SConscript", exports="env" )

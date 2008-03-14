@@ -1,0 +1,69 @@
+# ----------------------------------------------------------------------------
+# Copyright (c) 2005 Humanized, Inc. All rights reserved.
+# ----------------------------------------------------------------------------
+#
+#   SConstruct
+#   Maintainer: Jono DiCarlo
+#
+#   Python Version - 2.4
+#
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Imports
+# ----------------------------------------------------------------------------
+
+Import( "env" )
+import os
+
+# ----------------------------------------------------------------------------
+# Logging Component
+# ----------------------------------------------------------------------------
+
+loggingEnv = env.Copy()
+cppDefines = {
+    "LOGGING_USE_DL_EXPORT" : "1",
+    }
+loggingEnv.Append( CPPDEFINES = cppDefines )
+
+# Create Logging.dll.
+loggingDll, loggingImportLib, expFile = loggingEnv.SharedLibrary(
+    target="CLogging.dll",
+    source=["Logging.cxx"],
+)
+
+loggingEnv.Install( "${BASE_INSTALL_DIR}",
+                    loggingDll )
+
+loggingEnv.Install( "${LIB_INSTALL_DIR}",
+                    loggingImportLib )
+
+
+# ----------------------------------------------------------------------------
+# Python Interface to Logging
+# ----------------------------------------------------------------------------
+
+libs = [
+    "CLogging"
+    ]
+
+# Use SWIG to create the Python interface to Logging.
+pydFile, pyFile = env.buildSwigExtension(
+    swigInterfaceFile = "LoggingBackend.i",
+    isCpp = False,
+    LIBS = libs,
+    )
+
+loggingEnv.Install( "${BASE_INSTALL_DIR}",
+                    [pydFile, pyFile] )
+
+
+# ----------------------------------------------------------------------------
+# Logging Testers
+# ----------------------------------------------------------------------------
+
+# Use CxxTest to create a C++ test suite for Logging.
+cppFile = loggingEnv.CxxTest( "LoggingCTester" )
+loggingCTester = loggingEnv.Program( target = "LoggingCTester",
+                                     source = [cppFile],
+                                     LIBS = libs )
