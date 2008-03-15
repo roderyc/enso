@@ -114,6 +114,7 @@ baseEnv = Environment(
     LIB_INSTALL_DIR = "#enso_win32",
     BASE_INCLUDE_DIR = "#src",
     BASE_PYTHON_DIR = "C:\\Python24",
+    SWIG = "C:\\swig\\swig.exe",
     DEBUG = 0
     )
 
@@ -180,4 +181,4 @@ else:
 # ----------------------------------------------------------------------------
 
 SConscript( "src/Logging/SConscript", exports="env" )
-# SConscript( "src/InputManager/SConscript", exports="env" )
+SConscript( "src/InputManager/SConscript", exports="env" )
