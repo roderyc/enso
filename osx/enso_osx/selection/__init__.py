@@ -8,9 +8,17 @@ key_utils = ctypes.CDLL( os.path.join( __path__[0], "key_utils.so" ) )
 def _getClipboardText():
     pb = AppKit.NSPasteboard.generalPasteboard()
     if pb.availableTypeFromArray_( [AppKit.NSStringPboardType] ):
-        return pb.stringForType_( AppKit.NSStringPboardType )
+        return unicode( pb.stringForType_( AppKit.NSStringPboardType ) )
     else:
-        return None
+        return u""
+
+def _getClipboardFiles():
+    pb = AppKit.NSPasteboard.generalPasteboard()
+    if pb.availableTypeFromArray_( [AppKit.NSFilenamesPboardType] ):
+        files = pb.propertyListForType_( AppKit.NSFilenamesPboardType )
+        return [ unicode( filename ) for filename in files ]
+    else:
+        return []
 
 def _setClipboardText( text ):
     pb = AppKit.NSPasteboard.generalPasteboard()
@@ -30,13 +38,15 @@ def get():
     if newChangeCount != oldChangeCount:
         # The clipboard contents changed at some point, which
         # means our copy operation was probably successful.
-        unicodeText = unicode( _getClipboardText() )
-        selection["text"] = unicodeText
+        selection["text"] = _getClipboardText()
+        selection["files"] = _getClipboardFiles()
 
     return selection
 
 def set( seldict ):
     success = False
+
+    # TODO: Set 'files' selection.
 
     if seldict.get( "text" ) and _setClipboardText( seldict["text"] ):
         # TODO: Figure out whether the paste is successful.
