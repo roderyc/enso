@@ -20,10 +20,10 @@ def _getClipboardFiles():
     else:
         return []
 
-def _setClipboardText( text ):
+def _setClipboardString( string, format ):
     pb = AppKit.NSPasteboard.generalPasteboard()
-    pb.declareTypes_owner_( [AppKit.NSStringPboardType], None )
-    return pb.setString_forType_( text, AppKit.NSStringPboardType )
+    pb.declareTypes_owner_( [format], None )
+    return pb.setString_forType_( string, format )
 
 def get():
     selection = {}
@@ -38,6 +38,10 @@ def get():
     if newChangeCount != oldChangeCount:
         # The clipboard contents changed at some point, which
         # means our copy operation was probably successful.
+
+        # TODO: We're not currently getting HTML-formatted text from
+        # the clipboard, largely because we haven't yet found any apps
+        # that actually set it.
         selection["text"] = _getClipboardText()
         selection["files"] = _getClipboardFiles()
 
@@ -45,10 +49,21 @@ def get():
 
 def set( seldict ):
     success = False
+    tryToPaste = False
 
     # TODO: Set 'files' selection.
 
-    if seldict.get( "text" ) and _setClipboardText( seldict["text"] ):
+    selClipboardMapping = {
+        "text" : AppKit.NSStringPboardType,
+        "html" : AppKit.NSHTMLPboardType
+        }
+
+    for selType, clipboardType in selClipboardMapping.items():
+        if ( seldict.get( selType ) and
+             _setClipboardString( seldict[selType], clipboardType ) ):
+            tryToPaste = True
+
+    if tryToPaste:
         # TODO: Figure out whether the paste is successful.
         key_utils.simulatePaste()
         success = True
