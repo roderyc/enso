@@ -22,7 +22,6 @@ import os
 
 loggingEnv = env.Copy()
 
-print "loggingEnv[CPPPATH] is: ", loggingEnv[ "CPPPATH" ]
 cppDefines = {
     "LOGGING_USE_DL_EXPORT" : "1",
     }
@@ -39,23 +38,4 @@ loggingEnv.Install( "${BASE_INSTALL_DIR}",
 
 loggingEnv.Install( "${LIB_INSTALL_DIR}",
                     loggingImportLib )
-
-
-# ----------------------------------------------------------------------------
-# Python Interface to Logging
-# ----------------------------------------------------------------------------
-
-libs = [
-    "CLogging"
-    ]
-
-# Use SWIG to create the Python interface to Logging.
-pydFile, pyFile = env.buildSwigExtension(
-    swigInterfaceFile = "LoggingBackend.i",
-    isCpp = False,
-    LIBS = libs,
-    )
-
-loggingEnv.Install( "${BASE_INSTALL_DIR}",
-                    [pydFile, pyFile] )
 
