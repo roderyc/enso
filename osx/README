@@ -33,3 +33,29 @@ variable.
 Finally, in order for quasimodal keypresses to be properly detected on
 OS X, you must enable access for assistive devices in the Universal
 Access System Preferences.
+
+
+
+
+Troubleshooting
+===============
+
+1. How do I install Scons?
+
+Download the tarball from www.scons.org, and after unpacking it, cd into the scons
+directory and do:
+sudo python setup.py install 
+
+
+2. I run Scons and get an error message like this:
+Traceback (most recent call last):
+  File "/usr/local/bin/scons", line 160, in <module>
+    import SCons.Script
+ImportError: No module named SCons.Script
+
+Solution: try adding the following line to your ~/.profile  file:
+
+export SCONS_LIB_DIR=/Library/scons-0.97
+
+(Change the path as apropriate if you're using a version of Scons newer than 0.97.)
+Then restart your terminal session.
