@@ -153,13 +153,17 @@ as background when doing fake transparency'''
         def do_screen_changed (self, old_screen = None):
             '''Update colormap/background and so on when screen changes'''
             screen = self.get_screen ()
-            colormap = screen.get_rgba_colormap ()
+            colormap = None
+            if hasattr (screen, "get_rgba_colormap"):
+                colormap = screen.get_rgba_colormap ()
             if not colormap:
                 logging.warn ('''No RGBA colormap available, \
 falling back to RGB''')
                 colormap = screen.get_rgb_colormap ()
             self.set_colormap (colormap)
-            self.__screen_composited = self.get_screen ().is_composited ()
+            self.__screen_composited = False
+            if hasattr (screen, "is_composited"):
+                self.__screen_composited = screen.is_composited ()
             if not self.__screen_composited and FAKE_TRANSPARENCY:
                 logging.warn ('''Switching to fake transparency mode, \
 please use a compositing manager to get proper blending.''')
@@ -172,8 +176,9 @@ please use a compositing manager to get proper blending.''')
             cr.rectangle (0, 0, self.__width, self.__height)
             cr.clip ()
             self.draw_surface (cr)
-            self.input_shape_combine_mask (None, 0, 0)
-            self.input_shape_combine_mask (pixmap, 0, 0)
+            if hasattr (self, "input_shape_combine_mask"):
+                self.input_shape_combine_mask (None, 0, 0)
+                self.input_shape_combine_mask (pixmap, 0, 0)
             if not self.__screen_composited:
                 self.shape_combine_mask (pixmap, 0, 0)
 
