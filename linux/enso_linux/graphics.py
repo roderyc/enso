@@ -278,7 +278,9 @@ def getDesktopSize ():
     '''Helper fetching the current workarea (i.e. usable space) size'''
     root = gtk.gdk.screen_get_default ().get_root_window ()
     prop = root.property_get (_NET_CURRENT_DESKTOP)
-    if prop is None: return None
+    if prop is None:
+        _, _, width, height, depth = root.get_geometry ()
+        return width, height
     propname, proptype, propvalue = prop
     current = propvalue[0]
     prop = root.property_get (_NET_WORKAREA)
