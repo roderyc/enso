@@ -90,7 +90,7 @@ def _init():
         try:
             # Import the module; most of this code was taken from the
             # Python Library Reference documentation for __import__().
-            module = __import__( moduleName, {}, {}, [], 0 )
+            module = __import__( moduleName, {}, {}, [] )
             components = moduleName.split( "." )
             for component in components[1:]:
                 module = getattr( module, component )
