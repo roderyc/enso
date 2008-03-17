@@ -27,8 +27,10 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-# Fix the PATH so we can load the dlls
 import os
+import atexit
+
+# Hack the PATH so we can load dlls from the enso_win32 directory
 oldPath = os.environ["PATH"]
 path = oldPath + ";" +  os.path.abspath( __path__[0] )
 os.environ["PATH"] = path
@@ -40,6 +42,11 @@ def provideInterface( name ):
         import enso_win32.input
         return enso_win32.input
     elif name == "graphics":
+        # async event thread must be started before we create any
+        # TransparentWindows, and stopped when we shut down:
+        import enso_win32.input.AsyncEventThread
+        enso_win32.input.AsyncEventThread.start()
+        atexit.register( enso_win32.input.AsyncEventThread.stop() )
         import enso_win32.graphics
         return enso_win32.graphics
     elif name == "cairo":
