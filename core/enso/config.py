@@ -59,7 +59,7 @@ MINI_MSG_HELP_XML = "<p>The <command>hide mini messages</command>" \
 # these modules may not exist on the target platform; if they don't,
 # then they're ignored.  This means that you can just install
 # whichever ones you need and Enso will "just work".
-PROVIDERS = ["enso_osx", "enso_linux", "enso_windows"]
+PROVIDERS = ["enso_osx", "enso_linux", "enso_win32"]
 
 # List of modules/packages that support the plugin interface to
 # extend Enso.  The plugins are loaded in the order that they
