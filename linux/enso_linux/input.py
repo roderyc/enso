@@ -159,7 +159,9 @@ class _KeyListener (Thread):
                 event = self.__display.next_event ()
                 self.__lock = True
                 gtk.gdk.threads_enter ()
-                if hasattr (event,"detail") and event.detail == trigger_keycode and event.type in events:
+                if hasattr (event,"detail") \
+                   and event.detail == trigger_keycode \
+                   and event.type in events:
                     if self.__parent.getModality ():
                         continue
                     elif event.type == X.KeyPress:
