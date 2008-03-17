@@ -41,6 +41,10 @@ def getOutput( params ):
 # Build Actions
 # ----------------------------------------------------------------------------
 
+# Flags needed for Python C extension modules, so that missing
+# Python symbols are looked-up (and found) when the module is loaded.
+FIND_MISSING_SYMBOLS_AT_RUNTIME_FLAGS = "-undefined dynamic_lookup"
+
 # quartz cairo bridge
 
 cairoLibFlags = getOutput( ["pkg-config", "cairo", "--libs"] )
@@ -51,8 +55,8 @@ qcbEnv = env.Copy()
 qcbEnv.Append(
     CPPPATH=["pycairo"],
     CCFLAGS=cairoIncludeFlags.split(),
-    LINKFLAGS=cairoLibFlags,
-    LIBS=["python", "cairo"],
+    LINKFLAGS=cairoLibFlags + FIND_MISSING_SYMBOLS_AT_RUNTIME_FLAGS,
+    LIBS=["cairo"],
     FRAMEWORKS=["AppKit"],
     )
 
@@ -88,7 +92,7 @@ pycairoEnv = env.Copy()
 
 pycairoEnv.Append(
     CCFLAGS=cairoIncludeFlags.split(),
-    LINKFLAGS=cairoLibFlags
+    LINKFLAGS=cairoLibFlags + FIND_MISSING_SYMBOLS_AT_RUNTIME_FLAGS
     )
 
 SConscript( "pycairo/SConscript", exports="pycairoEnv" )
