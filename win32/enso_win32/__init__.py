@@ -27,6 +27,12 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+# Fix the PATH so we can load the dlls
+import os
+oldPath = os.environ["PATH"]
+path = oldPath + ";" +  os.path.abspath( __path__[0] )
+os.environ["PATH"] = path
+
 # Import and return the Win32 implementation of the requested interface.
 
 def provideInterface( name ):
