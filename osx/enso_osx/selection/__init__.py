@@ -1,14 +1,17 @@
-import AppKit
 import ctypes
 import time
 import os
+
+import AppKit
+
+from enso_osx.utils import sendMsg
 
 key_utils = ctypes.CDLL( os.path.join( __path__[0], "key_utils.so" ) )
 
 def _getClipboardText():
     pb = AppKit.NSPasteboard.generalPasteboard()
     if pb.availableTypeFromArray_( [AppKit.NSStringPboardType] ):
-        return unicode( pb.stringForType_( AppKit.NSStringPboardType ) )
+        return unicode( pb.stringForType_(AppKit.NSStringPboardType) )
     else:
         return u""
 
@@ -22,8 +25,8 @@ def _getClipboardFiles():
 
 def _setClipboardString( string, format ):
     pb = AppKit.NSPasteboard.generalPasteboard()
-    pb.declareTypes_owner_( [format], None )
-    return pb.setString_forType_( string, format )
+    sendMsg( pb, "declareTypes:", [format], "owner:", None )
+    return sendMsg( pb, "setString:", string, "forType:", format )
 
 def get():
     selection = {}

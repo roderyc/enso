@@ -7,7 +7,8 @@ import AppKit
 import Foundation
 import cairo
 
-from enso_osx import quartz_cairo_bridge
+from enso_osx.quartz_cairo_bridge import cairo_surface_from_NSGraphicsContext
+from enso_osx.utils import sendMsg
 
 MAX_OPACITY = 0xff
 
@@ -34,8 +35,14 @@ class _TransparentWindowView( AppKit.NSView ):
         # "Creating a Flip Transform".
         frameRect = self.bounds()
         xform = AppKit.NSAffineTransform.transform()
-        xform.translateXBy_yBy_( 0.0, frameRect.size.height )
-        xform.scaleXBy_yBy_( 1.0, -1.0 )
+        sendMsg( xform,
+                 "translateXBy:", 0.0,
+                 "yBy:", frameRect.size.height )
+
+        sendMsg( xform,
+                 "scaleXBy:", 1.0,
+                 "yBy:", -1.0 )
+
         xform.concat()
 
         parent._imageRep.draw()
@@ -66,7 +73,14 @@ class TransparentWindow( object ):
                                       self.__width,
                                       self.__height )
         style = AppKit.NSBorderlessWindowMask
-        self.__wind = AppKit.NSWindow.alloc().initWithContentRect_styleMask_backing_defer_( rect, style, AppKit.NSBackingStoreBuffered, objc.YES )
+        self.__wind = sendMsg(
+            AppKit.NSWindow.alloc(),
+            "initWithContentRect:", rect,
+            "styleMask:", style,
+            "backing:", AppKit.NSBackingStoreBuffered,
+            "defer:", objc.YES
+            )
+
         self.__wind.setBackgroundColor_( AppKit.NSColor.clearColor() )
         self.__view = _TransparentWindowView.alloc().initWithParent_( self )
         self.__wind.setContentView_( self.__view )
@@ -81,25 +95,37 @@ class TransparentWindow( object ):
 
     def makeCairoSurface( self ):
         if not self._surface:
-            self._imageRep = AppKit.NSBitmapImageRep.alloc().initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bitmapFormat_bytesPerRow_bitsPerPixel_(
-                None,
-                self.__maxWidth,
-                self.__maxHeight,
-                8,
-                4,
-                True,
-                False,
-                AppKit.NSCalibratedRGBColorSpace,
-                0,
-                4 * self.__maxWidth,
-                32
+            self._imageRep = sendMsg(
+                AppKit.NSBitmapImageRep.alloc(),
+                "initWithBitmapDataPlanes:", None,
+                "pixelsWide:", self.__maxWidth,
+                "pixelsHigh:", self.__maxHeight,
+                "bitsPerSample:", 8,
+                "samplesPerPixel:", 4,
+                "hasAlpha:", True,
+                "isPlanar:", False,
+                "colorSpaceName:", AppKit.NSCalibratedRGBColorSpace,
+                "bitmapFormat:", 0,
+                "bytesPerRow:", 4 * self.__maxWidth,
+                "bitsPerPixel:", 32
                 )
+
             # This NSGraphicsContext retains the NSBitmapImageRep we
             # pass it, but for some reason it doesn't release it on
             # destruction... See this class' __del__() method for how
             # we deal with this.
-            nsContext = AppKit.NSGraphicsContext.graphicsContextWithBitmapImageRep_( self._imageRep )
-            self._surface = quartz_cairo_bridge.cairo_surface_from_NSGraphicsContext( nsContext, self.__maxWidth, self.__maxHeight )
+            nsContext = sendMsg(
+                AppKit.NSGraphicsContext,
+                "graphicsContextWithBitmapImageRep:",
+                self._imageRep
+                )
+
+            self._surface = cairo_surface_from_NSGraphicsContext(
+                nsContext,
+                self.__maxWidth,
+                self.__maxHeight
+                )
+
         return self._surface
 
     def setOpacity( self, opacity ):
