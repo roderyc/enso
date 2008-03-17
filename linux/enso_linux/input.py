@@ -124,6 +124,8 @@ class _KeyListener (Thread):
 
     __lock      = False
 
+    __caps_lock = None
+
     def __init__ (self, parent, callback):
         '''Initialize object'''
         Thread.__init__ (self)
@@ -215,24 +217,20 @@ key-repeat problems")
             if key == "Caps_Lock" and has_xmodmap:
                 # work out what Lock is currently set to
                 xmodmap_command = ["xmodmap","-pm"]
-                xmodmap_process = subprocess.Popen(xmodmap_command,
-                                          stdout = subprocess.PIPE)
+                xmodmap_process = subprocess.Popen (xmodmap_command,
+                                                    stdout = subprocess.PIPE)
                 xmodmap_stdout = xmodmap_process.stdout
-                lock_line = [l for l in xmodmap_stdout.readlines()
-                             if l.startswith("lock")]
+                lock_line = [l for l in xmodmap_stdout.readlines ()
+                             if l.startswith ("lock")]
                 if lock_line:
                     parts = lock_line[0].strip().split()
-                    if len(parts) == 1:
-                        logging.debug("Caps Lock already disabled!")
+                    if len (parts) == 1:
+                        logging.debug ("Caps Lock already disabled!")
                     else:
-                        current_lock_key = parts[1]
-                        logging.debug("xmodmap - disable Caps Lock")
-                        os.system('xmodmap -e "clear Lock"')
-                        # register an exit handler to 
-                        # reenable Caps Lock
+                        self.__caps_lock = parts[1]
+                        self.disable_caps_lock ()
                         import atexit
-                        atexit.register(self.reenable_caps_lock, 
-                                        current_lock_key)
+                        atexit.register (self.enable_caps_lock)
             ownev = not self.__parent.getModality ()
             root_window.grab_key (keycode, X.AnyModifier, ownev,
                                   X.GrabModeAsync, X.GrabModeAsync)
@@ -245,11 +243,17 @@ key-repeat problems")
         root_window = self.__display.screen ().root
         root_window.ungrab_key (keycode, 0)
         
-    def reenable_caps_lock(self, key):
-        '''Re-enable Caps Lock: passed the key that Caps Lock 
-           was set to on startup'''
-        logging.debug("Using xmodmap to re-enable Caps Lock")
-        os.system('xmodmap -e "add Lock = %s"' % key)
+    def disable_caps_lock (self):
+        '''Disable Caps Lock'''
+        if self.__caps_lock:
+            logging.debug ("Using xmodmap to disable Caps Lock")
+            os.system ('xmodmap -e "clear Lock"')
+        
+    def enable_caps_lock (self):
+        '''Enable Caps Lock'''
+        if self.__caps_lock:
+            logging.debug ("Using xmodmap to enable Caps Lock")
+            os.system ('xmodmap -e "add Lock = %s"' % self.__caps_lock)
 
 class InputManager (object):
     '''Input event manager object'''
@@ -359,9 +363,11 @@ class InputManager (object):
     def getModality (self):
         return self.__isModal
 
-    def setCapsLockMode (self, isCapsLockEnabled):
-        # TODO: Implementation needed.
-        pass
+    def setCapsLockMode (self, caps_lock_enabled):
+        if caps_lock_enabled:
+            self.__keyListener.enable_caps_lock ()
+        else:
+            self.__keyListener.disable_caps_lock ()
 
     def onTick (self, msPassed):
         pass
