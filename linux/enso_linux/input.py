@@ -199,7 +199,7 @@ class _KeyListener (Thread):
     def error_handler (self, error, *args):
         '''Catch Xlib errors'''
         logging.critical ("X protocol error caught : %s" % error)
-        gtk.main_quit ()
+        self.__parent.stop ()
 
     def grab (self, keys):
         '''Grab a specific key'''
@@ -246,7 +246,8 @@ key-repeat problems")
                                   X.GrabModeAsync, X.GrabModeAsync)
             return key, keycode
         logging.critical ("Couldn't find quasimode key")
-        gtk.main_quit ()
+        self.__parent.stop ()
+        return None, None
 
     def ungrab (self, keycode):
         '''Ungrab a specific key'''
