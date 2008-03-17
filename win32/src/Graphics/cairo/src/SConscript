@@ -1,0 +1,56 @@
+# ----------------------------------------------------------------------------
+# Copyright (c) 2005 Humanized, Inc. All rights reserved.
+# ----------------------------------------------------------------------------
+#
+#   SConscript
+#   Maintainer: Atul Varma
+#
+#   Python Version - 2.4
+#
+#   This is the Cairo source code SConscript file.
+#
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Imports
+# ----------------------------------------------------------------------------
+
+Import( "env" )
+
+import glob
+
+
+# ----------------------------------------------------------------------------
+# Build Actions
+# ----------------------------------------------------------------------------
+
+env = env.Copy()
+
+# Cairo exports all its functions using a .def file instead of in-line
+# in its source code (i.e., using something like
+# __declspec(dllexport)).  So we have to tell the linker to use the
+# .def file.
+cairoDefFileName = File( "cairo.def" ).path
+
+env.Append(
+    LINKFLAGS = ["/DEF:%s" % cairoDefFileName]
+    )
+
+sourceList = [
+    glob.glob( "*.c" )
+    ]
+
+libs = [
+    "${FT2_LIB_NAME}",
+    "${PIXMAN_LIB_NAME}",
+    "Gdi32.lib",
+    "User32.lib",
+    ]
+
+dllFile, expFile, libFile = env.SharedLibrary(
+    target="${CAIRO_LIB_NAME}",
+    source=sourceList,
+    LIBS=libs
+    )
+
+env.Install( "${BASE_INSTALL_DIR}", dllFile )

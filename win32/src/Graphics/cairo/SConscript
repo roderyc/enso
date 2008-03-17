@@ -1,0 +1,46 @@
+# ----------------------------------------------------------------------------
+# Copyright (c) 2005 Humanized, Inc. All rights reserved.
+# ----------------------------------------------------------------------------
+#
+#   SConscript
+#   Maintainer: Atul Varma
+#
+#   Python Version - 2.4
+#
+#   This is the root Cairo SConscript file.
+#
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Imports
+# ----------------------------------------------------------------------------
+
+Import( "env" )
+
+
+# ----------------------------------------------------------------------------
+# Library Definitions
+# ----------------------------------------------------------------------------
+
+env = env.Copy()
+
+# Pixman
+env.addLib(
+    basePath = env.makeRootRelativePath( "pixman" ),
+    includePath = "src",
+    libPath = "src",
+    PIXMAN_LIB_NAME = "pixman",
+    )
+
+# Disable "treat all warnings as errors". This is done because the
+# cairo source code raises a number of warnings when compiled under
+# MSVC, and we're not in a position to fix their code at present.
+env["CCFLAGS"].remove( "/WX" )
+
+
+# ----------------------------------------------------------------------------
+# Build Actions
+# ----------------------------------------------------------------------------
+
+SConscript( "pixman/src/SConscript", exports="env" )
+SConscript( "src/SConscript", exports="env" )

@@ -1,0 +1,63 @@
+# ----------------------------------------------------------------------------
+# Copyright (c) 2005 Humanized, Inc. All rights reserved.
+# ----------------------------------------------------------------------------
+#
+#   SConscript
+#   Maintainer: Atul Varma
+#
+#   Python Version - 2.4
+#
+#   This is the Graphics subsystem SConscript file.
+#
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Imports
+# ----------------------------------------------------------------------------
+
+Import( "env" )
+
+
+# ----------------------------------------------------------------------------
+# Library Definitions
+# ----------------------------------------------------------------------------
+
+env = env.Copy()
+
+# FreeType 2
+env.addLib(
+    basePath = env.makeRootRelativePath( "freetype2" ),
+    libPath = "",
+    includePath = "include",
+    FT2_LIB_NAME = "freetype2"
+    )
+
+# Cairo
+env.addLib(
+    basePath = env.makeRootRelativePath( "cairo" ),
+    libPath = "src",
+    includePath = "src",
+    CAIRO_LIB_NAME = "libcairo-2",
+    )
+
+# PyCairo
+env.addLib(
+    basePath = env.makeRootRelativePath( "pycairo/cairo" ),
+    includePath = "",
+    libPath = "",
+    PYCAIRO_LIB_NAME = "_cairo",
+    )
+
+
+# ----------------------------------------------------------------------------
+# Build Actions
+# ----------------------------------------------------------------------------
+
+SConscript( "freetype2/SConscript", exports="env" )
+SConscript( "cairo/SConscript", exports="env" )
+SConscript( "pycairo/cairo/SConscript", exports="env" )
+SConscript( "TransparentWindow/SConscript", exports="env" )
+
+
+
+
