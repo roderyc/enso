@@ -28,9 +28,9 @@
 
 #   Python Version - 2.4
 #
-#   This is the Mehitabel Core SConstruct file.  Here we define all
+#   This is the main SConstruct file for Enso on Windows.  Here we define all
 #   command-line options, as well as the default environment and
-#   builders that are used by the rest of the Mehitabel Core project.
+#   builders that are used by the rest of the Enso project.
 #
 #   See README.txt for how to set up your build environment before running
 #   SCons.
@@ -202,3 +202,4 @@ else:
 
 SConscript( "src/Logging/SConscript", exports="env" )
 SConscript( "src/InputManager/SConscript", exports="env" )
+SConscript( "src/Graphics/SConscript", exports="env" )
