@@ -57,4 +57,4 @@ pydFile, pyFile = env.buildSwigExtension(
     LIBS = libs,
     )
 
-env.Install( "..", [pydFile, pyFile] )
+env.Install( "${GRAPHICS_INSTALL_DIR}", [pydFile, pyFile] )

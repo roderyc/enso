@@ -130,7 +130,8 @@ baseEnv = Environment(
     # Our custom environment variables used by our
     # SConstruct/SConscript files.
     BASE_INSTALL_DIR = "#enso_win32",
-    INPUT_INSTALL_DIR = "#enso_win32/Input",
+    INPUT_INSTALL_DIR = "#enso_win32/input",
+    GRAPHICS_INSTALL_DIR = "#enso_win32/graphics",
     LIB_INSTALL_DIR = "#enso_win32",
     BASE_INCLUDE_DIR = "#src",
     BASE_PYTHON_DIR = "C:\\Python24",
