@@ -143,7 +143,7 @@ class _KeyListener (Thread):
         self.__display.set_error_handler (self.error_handler)
         '''Outter loop, used for configuration handling'''
         while not self.__terminate:
-            grabbedKey = self.grab (QUASIMODE_TRIGGER_KEYS)
+            trigger_key, trigger_keycode = self.grab (QUASIMODE_TRIGGER_KEYS)
             events = [X.KeyPress]
             if not self.__parent.getModality ():
                 events += [X.KeyRelease]
@@ -153,7 +153,7 @@ class _KeyListener (Thread):
                 event = self.__display.next_event ()
                 self.__lock = True
                 gtk.gdk.threads_enter ()
-                if hasattr (event,"detail") and event.detail == grabbedKey and event.type in events:
+                if hasattr (event,"detail") and event.detail == trigger_keycode and event.type in events:
                     if self.__parent.getModality ():
                         continue
                     elif event.type == X.KeyPress:
@@ -164,10 +164,20 @@ class _KeyListener (Thread):
                         self.__capture = False
                 elif not self.__parent.getModality () and self.__capture \
                      and event.type in events:
-                    if event.type == X.KeyPress:
-                        self.__callback (make_event ("keyDown", event.detail))
-                    else:
-                        self.__callback (make_event ("keyUp", event.detail))
+                    modifiers_mask = gtk.gdk.MODIFIER_MASK
+                    if trigger_key.startswith ("Super_"):
+                        modifiers_mask &= ~gtk.gdk.MOD4_MASK
+                    state = event.state & modifiers_mask
+                    keyval = self.__display.keycode_to_keysym (event.detail,
+                                                               state)
+                    char = sanitize_char (keyval)
+                    if char:
+                        if event.type == X.KeyPress:
+                            self.__callback (make_event ("keyDown",
+                                                         event.detail))
+                        else:
+                            self.__callback (make_event ("keyUp",
+                                                         event.detail))
                 gtk.gdk.threads_leave ()
                 self.__lock = False
             self.ungrab (grabbedKey)
@@ -234,7 +244,7 @@ key-repeat problems")
             ownev = not self.__parent.getModality ()
             root_window.grab_key (keycode, X.AnyModifier, ownev,
                                   X.GrabModeAsync, X.GrabModeAsync)
-            return keycode
+            return key, keycode
         logging.critical ("Couldn't find quasimode key")
         gtk.main_quit ()
 

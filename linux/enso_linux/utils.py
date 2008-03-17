@@ -44,3 +44,10 @@ def get_keycode (key, display = None):
     keysym = gtk.gdk.keyval_from_name (key)
     keycode = display.keysym_to_keycode (keysym)
     return keycode
+
+def sanitize_char (keyval):
+    '''Sanitize a single character keyval by attempting to convert it'''
+    char = unichr (int (keyval))
+    if len (char) > 0 and ord (char) > 0 and ord (char) < 65000:
+        return char
+    return None
