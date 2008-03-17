@@ -39,67 +39,9 @@
 # Imports
 # ----------------------------------------------------------------------------
 
-import pyAA
-import win32gui
 
 import TransparentWindow
 
 # Aliases to external names.
 getDesktopSize = TransparentWindow._getDesktopSize
 
-
-# ----------------------------------------------------------------------------
-# Utilities
-# ----------------------------------------------------------------------------
-
-def _safeCallFunc( method ):
-    """
-    pyAA objects refere to windows that can vanish at any time.
-
-    Calling a pyAA object's method indirectly through this function
-    guarantees either a successful return value, or None, without
-    any errors being raised because the refered-to window has
-    ceased to exist.
-    """
-    
-    try:
-        return method()
-    except pyAA.Error:
-        return None
-
-
-def getStartBarRect():
-    """
-    Returns the rectangle outlining the dimensions of the host
-    system's Windows Start Bar, as a tuple of the form ((left, top),
-    (width, height)).
-    """
-    
-    hwnd = win32gui.GetDesktopWindow()
-    objid = pyAA.Constants.OBJID_WINDOW
-    desktop = pyAA.AccessibleObjectFromWindow(hwnd, objid)
-    
-    clients = [ child
-                for child in desktop.Children
-                if _safeCallFunc( child.GetRoleText ) == "client" ]
-
-    if not clients:
-        return (0,0), (0,0)
-        # LONGTERM TODO: For some reason, this causes crashes on Japanese
-        # language versions of Windows. See trac ticket #149.
-        #raise Exception( "No Accessible Object of role 'client'." )
-    
-    trays = [ child
-              for child in clients[0].Children
-              if _safeCallFunc( child.GetClassName ) == "Shell_TrayWnd" ]
-
-    if trays:
-        tray = trays[0]
-        left, top, width, height = tray.Location
-    else:
-        # This means that the tray isn't in existence. This might occur when a
-        # fullscreen application is being opened. For instance, the Pinball
-        # game that is included with Windows.
-        left, top, width, height = (0, 0, 0, 0)
-
-    return (left, top), (width, height)
