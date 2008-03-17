@@ -84,7 +84,9 @@ CASE_INSENSITIVE_KEYCODE_MAP = {}
 
 def fill_keymap ():
     '''Fill keymap'''
-    special_keycodes = globals ()
+    global EXTRA_KEYCODES
+    EXTRA_KEYCODES = []
+    special_keycodes = {}
     display = get_display ()
     for i in range (0, 255):
         keyval = display.keycode_to_keysym (i, 0)
@@ -106,6 +108,10 @@ def fill_keymap ():
             char = unichr (int (keyval))
             if len (char) > 0 and ord (char) > 0:
                 CASE_INSENSITIVE_KEYCODE_MAP[i] = str (char)
+    vars = globals ()
+    for i in special_keycodes:
+        vars[i] = special_keycodes[i]
+        EXTRA_KEYCODES.append (special_keycodes[i])
 
 fill_keymap ()
 
@@ -170,8 +176,8 @@ class _KeyListener (Thread):
                     state = event.state & modifiers_mask
                     keyval = self.__display.keycode_to_keysym (event.detail,
                                                                state)
-                    char = sanitize_char (keyval)
-                    if char:
+                    if event.detail in EXTRA_KEYCODES \
+                       or sanitize_char (keyval):
                         if event.type == X.KeyPress:
                             self.__callback (make_event ("keyDown",
                                                          event.detail))
