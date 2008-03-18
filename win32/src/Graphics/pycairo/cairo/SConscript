@@ -56,4 +56,4 @@ dllFile, expFile, libFile = env.SharedLibrary(
     LIBS=libs
     )
 
-env.Install( "${BASE_INSTALL_DIR}", dllFile )
+env.Install( "${CAIRO_INSTALL_DIR}", dllFile )

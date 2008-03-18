@@ -132,6 +132,7 @@ baseEnv = Environment(
     BASE_INSTALL_DIR = "#enso_win32",
     INPUT_INSTALL_DIR = "#enso_win32/input",
     GRAPHICS_INSTALL_DIR = "#enso_win32/graphics",
+    CAIRO_INSTALL_DIR = "#enso_win32/cairo",
     LIB_INSTALL_DIR = "#enso_win32",
     BASE_INCLUDE_DIR = "#src",
     BASE_PYTHON_DIR = "C:\\Python24",
