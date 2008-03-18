@@ -35,6 +35,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import logging
 import subprocess
 import os
+import atexit
 
 from threading import Thread
 from time import sleep
@@ -131,6 +132,8 @@ class _KeyListener (Thread):
     __lock      = False
 
     __caps_lock = None
+    __num_lock_mod = None
+    __key_mod   = None
 
     def __init__ (self, parent, callback):
         '''Initialize object'''
@@ -173,11 +176,21 @@ class _KeyListener (Thread):
                 elif not self.__parent.getModality () and self.__capture \
                      and event.type in events:
                     modifiers_mask = gtk.gdk.MODIFIER_MASK
-                    if trigger_key.startswith ("Super_"):
-                        modifiers_mask &= ~gtk.gdk.MOD4_MASK
+                    if self.__key_mod:
+                        mod_str = self.__key_mod.upper ()
+                        mod = eval ("gtk.gdk.%s_MASK" % mod_str)
+                        modifiers_mask &= ~mod
                     state = event.state & modifiers_mask
                     keyval = self.__display.keycode_to_keysym (event.detail,
                                                                state)
+                    if not keyval and self.__num_lock_mod:
+                        mod_str = self.__num_lock_mod.upper ()
+                        mod = eval ("gtk.gdk.%s_MASK" % mod_str)
+                        modifiers_mask &= ~mod
+                        state = event.state & modifiers_mask
+                        keyval = \
+                            self.__display.keycode_to_keysym (event.detail,
+                                                              state)
                     if event.detail in EXTRA_KEYCODES \
                        or sanitize_char (keyval):
                         if event.type == X.KeyPress:
@@ -231,24 +244,34 @@ key-repeat problems")
             if not keycode:
                 continue
             if has_xset:
-                os.system ("xset -r %d" % keycode)
-            if key == "Caps_Lock" and has_xmodmap:
-                # work out what Lock is currently set to
+                os.system ("xset -r %d" % keycode) # FIXME: revert on exit
+            if has_xmodmap:
                 xmodmap_command = ["xmodmap","-pm"]
                 xmodmap_process = subprocess.Popen (xmodmap_command,
                                                     stdout = subprocess.PIPE)
                 xmodmap_stdout = xmodmap_process.stdout
-                lock_line = [l for l in xmodmap_stdout.readlines ()
-                             if l.startswith ("lock")]
+                lines = xmodmap_stdout.readlines ()
+                lock_line = filter (lambda l: l.startswith ("lock"), lines)
+                num_line = filter (lambda l: "Num_Lock" in l, lines)
+                key_line = filter (lambda l: key in l, lines)
                 if lock_line:
-                    parts = lock_line[0].strip().split()
-                    if len (parts) == 1:
-                        logging.debug ("Caps Lock already disabled!")
-                    else:
+                    parts = lock_line[0].strip ().split ()
+                    if len (parts) > 1:
                         self.__caps_lock = parts[1]
-                        self.disable_caps_lock ()
-                        import atexit
-                        atexit.register (self.enable_caps_lock)
+                if num_line:
+                    parts = num_line[0].strip ().split ()
+                    if len (parts) > 1:
+                        self.__num_lock_mod = parts[0]
+                if key_line:
+                    parts = key_line[0].strip ().split ()
+                    if len (parts) > 1:
+                        self.__key_mod = parts[0]
+            if key == "Caps_Lock":
+                if not self.__caps_lock:
+                    logging.debug ("Caps Lock already disabled!")
+                else:
+                    self.disable_caps_lock ()
+                    atexit.register (self.enable_caps_lock)
             ownev = not self.__parent.getModality ()
             root_window.grab_key (keycode, X.AnyModifier, ownev,
                                   X.GrabModeAsync, X.GrabModeAsync)
