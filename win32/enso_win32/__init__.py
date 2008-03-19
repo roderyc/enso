@@ -46,7 +46,9 @@ def provideInterface( name ):
         # TransparentWindows, and stopped when we shut down:
         import enso_win32.input.AsyncEventThread
         enso_win32.input.AsyncEventThread.start()
-        atexit.register( enso_win32.input.AsyncEventThread.stop() )
+        atexit.register( enso_win32.input.AsyncEventThread.stop )
+        # TODO make sure nothing bad will happen here if
+        # provideInterface( "graphics" ) gets called more than once.
         import enso_win32.graphics
         return enso_win32.graphics
     elif name == "cairo":

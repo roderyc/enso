@@ -40,8 +40,8 @@
 # ----------------------------------------------------------------------------
 
 
-import TransparentWindow
+from TransparentWindow import TransparentWindow
 
 # Aliases to external names.
-getDesktopSize = TransparentWindow._getDesktopSize
+from TransparentWindow import _getDesktopSize as getDesktopSize
 
