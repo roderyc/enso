@@ -87,16 +87,13 @@ public:
      * Constructor
      * --------------------------------------------------------------------
      *
-     * The InputManager's only constructor takes as a parameter
-     * the keycode of the key that enables and disables the command
-     * quasimode.  This keycode will correspond to a KEYCODE_*
-     * constant.
-     *
-     * This constructor does not actually start the main event loop.
+     * This constructor does not actually start the main event loop. It
+     * also does not set the quasimode activation key, so client code
+     * should call setQuasimodeKeycode() immediately after instantiation.
      *
      * ------------------------------------------------------------------*/
 
-    InputManager( int quasimodeKeycode );
+    InputManager( void );
 
     /* --------------------------------------------------------------------
      * Destructor

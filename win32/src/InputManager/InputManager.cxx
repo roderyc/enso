@@ -53,7 +53,7 @@
  * ........................................................................
  * ----------------------------------------------------------------------*/
 
-InputManager::InputManager( int quasimodeKeycode ) :
+InputManager::InputManager( void ) :
     _terminating( false ),
     _timerId( 0 )
 {
@@ -71,7 +71,7 @@ InputManager::InputManager( int quasimodeKeycode ) :
     PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
 
     ::initHookHandlers();
-    ::setQuasimodeKeycode( KEYCODE_QUASIMODE_START, quasimodeKeycode );
+    ::setQuasimodeKeycode( KEYCODE_QUASIMODE_START, VK_CAPITAL );
     ::setQuasimodeKeycode( KEYCODE_QUASIMODE_END, VK_RETURN );
     ::setQuasimodeKeycode( KEYCODE_QUASIMODE_CANCEL, VK_ESCAPE );
 }
