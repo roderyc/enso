@@ -90,15 +90,13 @@ public:
      * The InputManager's only constructor takes as a parameter
      * the keycode of the key that enables and disables the command
      * quasimode.  This keycode will correspond to a KEYCODE_*
-     * constant.  It also takes a path to the icon file that will be
-     * used for the tray icon.
+     * constant.
      *
      * This constructor does not actually start the main event loop.
      *
      * ------------------------------------------------------------------*/
 
-    InputManager( int quasimodeKeycode,
-                  const char *trayIconPath );
+    InputManager( int quasimodeKeycode );
 
     /* --------------------------------------------------------------------
      * Destructor
@@ -302,33 +300,6 @@ public:
 
     void
     setCapsLockMode( bool mode );
-
-    /* --------------------------------------------------------------------
-     * Adds an item to the system tray menu with the given title and id.
-     * ....................................................................
-     *
-     * Pass "-" as the title to add a horizontal separator line.
-     *
-     * ------------------------------------------------------------------*/
-
-    void
-    addTrayMenuItem( const char *menuTitle,
-                     int menuId );
-
-    /* --------------------------------------------------------------------
-     * Event handler called when a system tray menu item is selected.
-     * ....................................................................
-     *
-     * The menuId parameter corresponds to the one passed in when
-     * the menu item was created.
-     *
-     * This method should be overridden by subclasses; the default
-     * implementation does nothing.
-     *
-     * ------------------------------------------------------------------*/
-
-    virtual void
-    onTrayMenuItem( int menuId ) {};
 
     /* --------------------------------------------------------------------
      * Event handler for timer events.

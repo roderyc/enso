@@ -39,7 +39,6 @@
 #include "InputManager.h"
 #include "HookHandlers.h"
 #include "ExitHandler.h"
-#include "TrayIconManager.h"
 #include "GlobalConstants.h"
 
 #include <stdio.h>
@@ -54,8 +53,7 @@
  * ........................................................................
  * ----------------------------------------------------------------------*/
 
-InputManager::InputManager( int quasimodeKeycode,
-                            const char *trayIconPath ) :
+InputManager::InputManager( int quasimodeKeycode ) :
     _terminating( false ),
     _timerId( 0 )
 {
@@ -76,7 +74,6 @@ InputManager::InputManager( int quasimodeKeycode,
     ::setQuasimodeKeycode( KEYCODE_QUASIMODE_START, quasimodeKeycode );
     ::setQuasimodeKeycode( KEYCODE_QUASIMODE_END, VK_RETURN );
     ::setQuasimodeKeycode( KEYCODE_QUASIMODE_CANCEL, VK_ESCAPE );
-    ::setTrayIconPath( trayIconPath );
 }
 
 
@@ -143,10 +140,6 @@ InputManager::_handleThreadMessage( UINT msg,
         /* Sent by our owner when we're terminating.  We don't need to
          * do anything; this is just to kick the event loop. */
         debugMsg( "Message window thread: quit signal received." );
-        break;
-
-    case WM_USER_TRAY_MENU_ITEM:
-        onTrayMenuItem( wParam );
         break;
 
     case WM_USER_INIT:
@@ -330,14 +323,6 @@ InputManager::run( void )
         infoMsg( "Installed keyboard/mouse hooks." );
     }
 
-    if ( !initTrayIconManager(_threadId) )
-    {
-        errorMsg( "Couldn't init tray icon manager.\n" );
-        throw MehitabelException();
-    } else {
-        infoMsg( "Initialized tray icon manager." );
-    }
-
     bool pythonExceptionOccurred = false;
 
     /* Main event loop continues until _terminating becomes true
@@ -398,14 +383,6 @@ InputManager::run( void )
         infoMsg( "A Python exception occurred in an InputManager "
                  "event handler." );
         pythonExceptionOccurred = true;
-    }
-
-    if ( !shutdownTrayIconManager() )
-    {
-        errorMsg( "Tray Icon Manager didn't shutdown properly." );
-        throw MehitabelException();
-    } else {
-        infoMsg( "Shutdown Tray Icon Manager." );
     }
 
     if ( !removeKeyboardHook() )
@@ -503,20 +480,4 @@ void
 InputManager::setModality( int isModal )
 {
     ::setModality( isModal );
-}
-
-/* ------------------------------------------------------------------------
- * Adds an item to the system tray menu with the given title and id.
- * ........................................................................
- * ----------------------------------------------------------------------*/
-
-void
-InputManager::addTrayMenuItem( const char *menuTitle,
-                               int menuId )
-{
-    if ( !::addTrayMenuItem(menuTitle, menuId) )
-    {
-        errorMsg( "addTrayMenuItem() failed." );
-        throw MehitabelException();
-    }
 }
