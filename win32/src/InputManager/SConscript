@@ -133,7 +133,6 @@ inputEnv.Install( "${INPUT_INSTALL_DIR}", pydFile )
 sources = [
     "InputManager.cxx",
     "HookHandlers.c",
-    "TrayIconManager.cxx",
     "ExitHandler.c"
     ]
 
