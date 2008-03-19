@@ -298,7 +298,9 @@ def getDesktopSize ():
     propname, proptype, propvalue = prop
     current = propvalue[0]
     prop = root.property_get (_NET_WORKAREA)
-    if prop is None: return None
+    if prop is None:
+        _, _, width, height, depth = root.get_geometry ()
+        return width, height
     propname, proptype, propvalue = prop
     _,_, width, height = propvalue[current * 4 : (current + 1) * 4]
     return width, height
