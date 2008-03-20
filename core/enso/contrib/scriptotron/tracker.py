@@ -39,6 +39,9 @@ class ScriptCommandTracker:
 class ScriptTracker:
     def __init__( self, eventManager, commandManager ):
         self._scriptCmdTracker = ScriptCommandTracker( commandManager )
+        # TODO: os.environ["HOME"] only works 'out-of-the-box' on
+        # unix; we need to do something different, preferably
+        # in platform-specific backends.
         self._scriptFilename = os.path.join( os.environ["HOME"],
                                              SCRIPTS_FILE_NAME )
         self._fileDependencies = [
