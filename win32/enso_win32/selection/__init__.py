@@ -26,17 +26,67 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+    Win32 implementation of the Selection interface: provides get()
+    and set() methods that take/return selection dictionaries.
+    The heavy lifting is delegated to TextSelection.py and
+    FileSelection.py.
+"""
 
-# A stub implementation of the selection interface, that does nothing.
-# Just a temporary placeholder.
+# ----------------------------------------------------------------------------
+# Imports
+# ----------------------------------------------------------------------------
+
+import logging
+import atexit
+
+import ClipboardArchive 
+import TextSelection 
+import FileSelection 
+
+
+# ----------------------------------------------------------------------------
+# Module variables
+# ----------------------------------------------------------------------------
+
+_isInitialized = False
+
 
 def get():
-    # Pretend there's just no selection: return an empty seldict.
-    return { "text": None,
-             "html": None,
-             "files": None
-           }
+    _init()
+    fileSelContext = FileSelection.get()
+    textSelContext = TextSelection.get()
 
-def set( seldict ):
-    # Do nothing.
-    pass
+    sel_dict = textSelContext.getSelection()
+
+    files = fileSelContext.getSelectedFiles()
+    if files:
+        sel_dict[ "files" ] = files
+
+    return sel_dict
+
+def set( sel_dict ):
+    _init()
+    textSelContext = TextSelection.get()
+    
+    # Trying to "set" a file selection doesn't do anything.
+    textSelContext.replaceSelection( sel_dict )
+
+
+# ----------------------------------------------------------------------------
+# Package Initialization
+# ----------------------------------------------------------------------------
+
+def _init():
+    """
+    Import and initalize ClipboardBackend and any context sub-modules
+    that need initialization, if they haven't already been initialized.
+    Register their shutdown functions to run at exit time as well.
+    """
+    global _isInitialized    
+    if not _isInitialized:
+        logging.infoMsg( "Now initializing ClipboardBackend." )
+        import ClipboardBackend
+        ClipboardBackend.init()
+        atexit.register( ClipboardBackend.shutdown )
+        _isInitialized = True
