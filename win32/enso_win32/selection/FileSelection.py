@@ -157,7 +157,6 @@ class DefaultFileSelectionContext( AbstractFileSelectionContext ):
             
         return value
 
-
 # ----------------------------------------------------------------------------
 # Public getter
 # ----------------------------------------------------------------------------
@@ -168,14 +167,11 @@ def get():
     subclass which is appropriate to the currently active application.
     """
     
-    import WindowManipulation
-    fgWind = WindowManipulation.getForegroundWindow()
+    windowClass = ContextUtils.getForegroundClassNameUnicode()
 
-    windowClass = fgWind.getClassName()
-
-    if windowClass == "ConsoleWindowClass":
+    if windowClass == u"ConsoleWindowClass":
         fsContext = NullFileSelectionContext()
-    elif windowClass == "Emacs":
+    elif windowClass == u"Emacs":
         fsContext = NullFileSelectionContext()
     else:
         fsContext = DefaultFileSelectionContext()

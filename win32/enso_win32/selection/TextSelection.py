@@ -257,7 +257,7 @@ class AbstractTextSelection:
         
         raise NotImplementedError
 
-    def _renderClipboardFormat( self, textDict, formatCode ):
+    def _renderClipboardFormat( self, textDict, format ):
         """
         Interprets a given clipboard format code and returns contents
         rendered into the corresponding format, and explicitly
@@ -522,16 +522,13 @@ def get():
     no text in it -- NOT a None.
     """
 
-    import WindowManipulation
-    fgWind = WindowManipulation.getForegroundWindow()
+    className = ContextUtils.getForegroundClassNameUnicode()
 
-    className = fgWind.getClassName()
-
-    if className == "Emacs":
+    if className == u"Emacs":
         tsContext = EmacsTextSelection()
-    elif className == "MoonEdit":
+    elif className == u"MoonEdit":
         tsContext = NonReplacingTextSelection()
-    elif className == "ConsoleWindowClass":
+    elif className == u"ConsoleWindowClass":
         tsContext = CommandPromptTextSelection()
     else:
         tsContext = DefaultTextSelection()

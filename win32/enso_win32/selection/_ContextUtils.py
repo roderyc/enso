@@ -39,6 +39,7 @@
 
 import win32api
 import win32con
+import win32gui
 import win32clipboard
 import ctypes
 import pywintypes
@@ -440,6 +441,29 @@ def typeSequence( keys ):
         key_code = mapping[key]
         _keyboardEvent( key_code, KEYEVENTF_KEYDOWN )
         _keyboardEvent( key_code, KEYEVENTF_KEYUP )
+
+
+def getForegroundClassNameUnicode():
+    """
+    Returns a unicode string containing the class name of the frontmost
+    application window.
+    """
+
+    hwnd = win32gui.GetForegroundWindow()
+
+    # Maximum number of chars we'll accept for the class name; the
+    # rest will be truncated if it's longer than this.
+    MAX_LENGTH = 1024
+
+    classNameBuf = ctypes.create_unicode_buffer( MAX_LENGTH )
+    retval = ctypes.windll.User32.GetClassNameW(
+        hwnd,
+        classNameBuf,
+        len( classNameBuf )
+        )
+    if retval == 0:
+        raise ctypes.WinError()
+    return classNameBuf.value
 
 
 # ----------------------------------------------------------------------------
