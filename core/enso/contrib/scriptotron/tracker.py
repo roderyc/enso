@@ -3,7 +3,6 @@ import os
 
 from enso.commands.manager import CommandAlreadyRegisteredError
 from enso.contrib.scriptotron.tracebacks import TracebackCommand
-from enso.contrib.scriptotron.tracebacks import addSafetyNetToCmdInfo
 from enso.contrib.scriptotron.tracebacks import safetyNetted
 from enso.contrib.scriptotron import adapters
 from enso.contrib.scriptotron import cmdretriever
@@ -32,7 +31,6 @@ class ScriptCommandTracker:
     def registerNewCommands( self, commandInfoList ):
         self._clearCommands()
         for info in commandInfoList:
-            addSafetyNetToCmdInfo( info )
             cmd = adapters.makeCommandFromInfo( info, ensoapi.EnsoApi() )
             self._registerCommand( cmd, info["cmdExpr"] )
 

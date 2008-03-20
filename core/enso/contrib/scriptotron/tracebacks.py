@@ -65,18 +65,3 @@ def safetyNetted( func ):
             TracebackCommand.setTracebackInfo()
             return None
     return wrapper
-
-def addSafetyNetToCmdInfo( info ):
-    """
-    Adds the 'safetyNetted' decorator to all relevant functions in the
-    given command info dictionary.
-
-    As such, this function destructively modifies the given command
-    info dictionary.
-    """
-
-    origFunc = info["func"]
-    newFunc = safetyNetted( origFunc )
-    if info["cmdType"] == "bounded-arg":
-        newFunc.__getvalidargs__ = safetyNetted( origFunc.__getvalidargs__ )
-    info["func"] = newFunc

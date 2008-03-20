@@ -1,6 +1,7 @@
 from enso.commands import CommandObject
 from enso.commands.factories import GenericPrefixFactory
 from enso.commands.factories import ArbitraryPostfixFactory
+from enso.contrib.scriptotron.tracebacks import safetyNetted
 
 ARG_REQUIRED_MSG = "<p>An argument is required.</p>"
 
@@ -19,6 +20,7 @@ class FuncCommand( CommandObject ):
         self.setHelp( help )
         self.setDescription( desc )
 
+    @safetyNetted
     def run( self ):
         if self.takesArg:
             self.func(self.ensoapi, self.argValue)
@@ -82,10 +84,9 @@ class BoundedArgFuncCommand( GenericPrefixFactory, ArgFuncMixin ):
         GenericPrefixFactory.__init__( self )
         ArgFuncMixin.__init__( self, *args, **kwargs )
 
+    @safetyNetted
     def update( self ):
-        validargs = self.func.__getvalidargs__()
-        if validargs is not None:
-            self._postfixes = validargs
+        self._postfixes = self.func.__getvalidargs__()
 
     _generateCommandObj = ArgFuncMixin._generateCommandObj
 
