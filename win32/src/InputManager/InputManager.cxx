@@ -469,10 +469,6 @@ InputManager::setQuasimodeKeycode( int quasimodeKeycode,
         // disable the capslock mode.
         setCapsLockMode( 0 );
     }
-
-    // TODO THE FOLLOWING LINE IS A HORRIBLE HACK AND MUST BE REMOVED
-    // ASAP:
-    ::setQuasimodeKeycode( KEYCODE_QUASIMODE_START, VK_CAPITAL );
 }
 
 /* ------------------------------------------------------------------------

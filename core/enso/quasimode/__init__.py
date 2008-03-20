@@ -142,34 +142,32 @@ class Quasimode:
 
         # Read settings from config file: are we modal?
         # What key activates the quasimode?
-        self.quasimodeKeycode = config.QUASIMODE_KEYCODE
+        # What keys exit and cancel the quasimode?
+
+        self.setQuasimodeKeyByName( input.KEYCODE_QUASIMODE_START,
+                                    config.QUASIMODE_START_KEY )
+        self.setQuasimodeKeyByName( input.KEYCODE_QUASIMODE_END,
+                                    config.QUASIMODE_END_KEY )
+        self.setQuasimodeKeyByName( input.KEYCODE_QUASIMODE_CANCEL,
+                                    config.QUASIMODE_CANCEL_KEY )
+
         self.__isModal = config.IS_QUASIMODE_MODAL
 
-        self.__eventMgr.setQuasimodeKeycode( input.KEYCODE_QUASIMODE_START,
-                                             self.quasimodeKeycode )
         self.__eventMgr.setModality( self.__isModal )
 
-        # Register "enter" and "escape" as exit keys:
-        self.__eventMgr.setQuasimodeKeycode( input.KEYCODE_QUASIMODE_END,
-                                             input.KEYCODE_RETURN )
-        self.__eventMgr.setQuasimodeKeycode( input.KEYCODE_QUASIMODE_CANCEL,
-                                             input.KEYCODE_ESCAPE )
 
+    def setQuasimodeKeyByName( self, function_name, key_name ):
+        # Sets the quasimode to use the given key (key_name must be a
+        # string corresponding to a constant defined in the os-specific
+        # input module) for the given function ( which should be one of
+        # the KEYCODE_QUASIMODE_START/END/CANCEL constants also defined
+        # in input.)
+        key_code = getattr( input, key_name )
+        assert( key_code, "Undefined quasimode key in config file." )
+        self.__eventMgr.setQuasimodeKeycode( function_name, key_code )
 
     def getQuasimodeKey( self ):
-        return self.quasimodeKeycode
-
-    def setQuasimodeKey( self, keycode ):
-        # LONGTERM TODO: make sure 'keycode' is a valid keycode.
-
-        assert type( keycode ) == int
-
-        config.QUASIMODE_KEYCODE = keycode
-        
-        self.quasimodeKeycode = keycode
-
-        self.__eventMgr.setQuasimodeKeycode( input.KEYCODE_QUASIMODE_START,
-                                             keycode )
+        self.__eventMgr.getQuasimodeKeycode()
 
     def isModal( self ):
         return self.__isModal

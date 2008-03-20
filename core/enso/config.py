@@ -2,9 +2,12 @@
 # localization into account too (or we can make a separate module for
 # such strings).
 
-# The keycode for the quasimode key.
-# TODO: Where are keycodes specified?
-QUASIMODE_KEYCODE = 1
+# The keys to start, exit, and cancel the quasimode.
+# Their values are strings referring to the names of constants defined
+# in the os-specific input module in use.
+QUASIMODE_START_KEY = "KEYCODE_CAPITAL"
+QUASIMODE_END_KEY = "KEYCODE_RETURN"
+QUASIMODE_CANCEL_KEY = "KEYCODE_ESCAPE"
 
 # Whether the Quasimode is actually modal ("sticky").
 IS_QUASIMODE_MODAL = False
