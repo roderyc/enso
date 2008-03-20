@@ -197,7 +197,7 @@ class AbstractTextSelection:
             except win32clipboard.error, e:
                 # This is a fix for ticket #415.
                 if e.args[0] == 0:
-                    logging.infoMsg( "GetClipboardData() error suppressed." )
+                    logging.info( "GetClipboardData() error suppressed." )
                     return {}
                 else:
                     raise
@@ -304,7 +304,7 @@ class AbstractTextSelection:
                     return self._renderClipboardFormat( textDict, formatCode )
             except Exception:
                 import traceback
-                logging.errorMsg( "Traceback in getPendingData():\n%s" %
+                logging.error( "Traceback in getPendingData():\n%s" %
                                   traceback.format_exc() )
                 raise
 

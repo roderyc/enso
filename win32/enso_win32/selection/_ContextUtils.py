@@ -189,7 +189,7 @@ def safeCloseClipboard():
     try:
         win32clipboard.CloseClipboard()
     except pywintypes.error:
-        logging.warnMsg( "Attempted to close clipboard when not open." )
+        logging.warn( "Attempted to close clipboard when not open." )
     global _contextUtilsHasTheClipboardOpen
     _contextUtilsHasTheClipboardOpen = False
 
@@ -335,7 +335,7 @@ def typeCommandKey( key ):
     _keyboardEvent( ord(key.upper()), KEYEVENTF_KEYDOWN )
     _keyboardEvent( ord(key.upper()), KEYEVENTF_KEYUP )
     _keyboardEvent( win32con.VK_CONTROL, KEYEVENTF_KEYUP )
-    logging.infoMsg( "I am in typeCommandKey and I just typed " + key )
+    logging.info( "I am in typeCommandKey and I just typed " + key )
 
 
 def typeAltKey( key ):

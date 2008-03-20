@@ -106,7 +106,7 @@ class ClipboardState:
         object duplicating that state.
         """
 
-        logging.debugMsg( "Attempting to save clipboard data in \
+        logging.debug( "Attempting to save clipboard data in \
                    ClipboardState object" )
 
         self.__formatData = {}
@@ -118,7 +118,7 @@ class ClipboardState:
                 except win32clipboard.error, e:
                     # This is a fix for ticket #414.
                     if e.args[0] == 0:
-                        logging.infoMsg( "GetClipboardData error suppressed." )
+                        logging.info( "GetClipboardData error suppressed." )
                         continue
                     else:
                         raise
@@ -134,7 +134,7 @@ class ClipboardState:
         clipboard.
         """
 
-        logging.debugMsg( "Attempting to restore clipboard data from"
+        logging.debug( "Attempting to restore clipboard data from"
                           " ClipboardState object" )
         
         win32clipboard.EmptyClipboard()

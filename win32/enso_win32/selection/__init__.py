@@ -85,7 +85,7 @@ def _init():
     """
     global _isInitialized    
     if not _isInitialized:
-        logging.infoMsg( "Now initializing ClipboardBackend." )
+        logging.info( "Now initializing ClipboardBackend." )
         import ClipboardBackend
         ClipboardBackend.init()
         atexit.register( ClipboardBackend.shutdown )

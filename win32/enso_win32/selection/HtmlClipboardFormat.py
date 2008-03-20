@@ -129,7 +129,7 @@ class HtmlClipboardFormat:
             html = clipboardHtml.decode( "utf-8" )
         except UnicodeDecodeError:
             # input can't be decoded from utf-8:
-            logging.warnMsg( "Non-Utf-8 string in fromClipboardHtml." )
+            logging.warn( "Non-Utf-8 string in fromClipboardHtml." )
             return cls( u"" )
 
         start = _findFirst( cls.START_RE, clipboardHtml )
@@ -141,7 +141,7 @@ class HtmlClipboardFormat:
             return cls( html )
         else:
             # Start and end not found in input:
-            logging.warnMsg( "Missing delimiters in fromClipboardHtml." )
+            logging.warn( "Missing delimiters in fromClipboardHtml." )
             return cls( u"" )
         
     @classmethod

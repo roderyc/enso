@@ -47,6 +47,7 @@
 import win32con
 import win32clipboard
 import pywintypes
+import logging
 
 import _ContextUtils as ContextUtils
 import ClipboardArchive
@@ -144,11 +145,11 @@ class DefaultFileSelectionContext( AbstractFileSelectionContext ):
                     win32con.CF_HDROP
                     )
             except pywintypes.error, e:
-                logging.warnMsg( "Error getting CF_HDROP from clipboard: %s" \
+                logging.warn( "Error getting CF_HDROP from clipboard: %s" \
                                  % ( str(e) ) )
                 value = None
         else:
-            logging.infoMsg( "Clipboard type CF_HDROP not in clipboard." )
+            logging.info( "Clipboard type CF_HDROP not in clipboard." )
             value = None
             # LONGTERM TODO: See whether there are other clipboard
             # formats that could give us the information we need
