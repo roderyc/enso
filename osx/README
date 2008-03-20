@@ -59,3 +59,23 @@ export SCONS_LIB_DIR=/Library/scons-0.97
 
 (Change the path as apropriate if you're using a version of Scons newer than 0.97.)
 Then restart your terminal session.
+
+
+3. I run SCons and get an error message like this:
+OSError: [Errno 2] No such file or directory:
+  File "/Users/jonathandicarlo/enso/osx/SConstruct", line 24:
+    SConscript( "src/SConscript", exports="env" )
+  File "/Library/scons-0.97/SCons/Script/SConscript.py", line 583:
+    return apply(method, args, kw)
+  File "/Library/scons-0.97/SCons/Script/SConscript.py", line 520:
+    return apply(_SConscript, [self.fs,] + files, subst_kw)
+  File "/Library/scons-0.97/SCons/Script/SConscript.py", line 245:
+    exec _file_ in call_stack[-1].globals
+  File "/Users/jonathandicarlo/enso/osx/src/SConscript", line 46:
+    cairoLibFlags = getOutput( ["pkg-config", "cairo", "--libs"] )
+  File "/Users/jonathandicarlo/enso/osx/src/SConscript", line 31:
+    stderr=subprocess.PIPE )
+  File "/System/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/subprocess.py", line 593:
+    errread, errwrite)
+  File "/System/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/subprocess.py", line 1079:
+    raise child_exception

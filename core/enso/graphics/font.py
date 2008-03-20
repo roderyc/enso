@@ -131,8 +131,12 @@ class Font:
         Sets the cairo context's current font to this font.
         """
 
+
+        # TODO THE FOLLOWING LINE IS A HORRIBLE HACK AND MUST BE FIXED
+        # ASAP:
         cairoContext.select_font_face(
-            self.name,
+            "c:/WINDOWS/Fonts/arial.ttf",
+            # self.name,
             self.slant,
             cairo.FONT_WEIGHT_NORMAL
             )
