@@ -3,6 +3,8 @@ import os
 
 from enso.commands.manager import CommandAlreadyRegisteredError
 from enso.contrib.scriptotron.tracebacks import TracebackCommand
+from enso.contrib.scriptotron.tracebacks import addSafetyNetToCmdInfo
+from enso.contrib.scriptotron.tracebacks import safetyNetted
 from enso.contrib.scriptotron import cmdwrappers
 from enso.contrib.scriptotron import cmdretriever
 
@@ -29,6 +31,7 @@ class ScriptCommandTracker:
     def registerNewCommands( self, commandInfoList ):
         self._clearCommands()
         for info in commandInfoList:
+            addSafetyNetToCmdInfo( info )
             cmd = cmdwrappers.makeCommandFromInfo( info )
             self._registerCommand( cmd, info["cmdExpr"] )
 
@@ -56,18 +59,24 @@ class ScriptTracker:
     def install( cls, eventManager, commandManager ):
         cls( eventManager, commandManager )
 
+    @safetyNetted
+    def _getGlobalsFromSourceCode( self, text, filename ):
+        allGlobals = {}
+        code = compile( text, self._scriptFilename, "exec" )
+        exec code in allGlobals
+        return allGlobals
+
     def _reloadPyScripts( self ):
         text = open( self._scriptFilename, "r" ).read()
 
-        allGlobals = {}
-        try:
-            code = compile( text, self._scriptFilename, "exec" )
-            exec code in allGlobals
-        except Exception:
-            TracebackCommand.setTracebackInfo()
+        allGlobals = self._getGlobalsFromSourceCode(
+            text,
+            self._scriptFilename
+            )
 
-        infos = cmdretriever.getCommandsFromObjects( allGlobals )
-        self._scriptCmdTracker.registerNewCommands( infos )
+        if allGlobals is not None:
+            infos = cmdretriever.getCommandsFromObjects( allGlobals )
+            self._scriptCmdTracker.registerNewCommands( infos )
 
     def _updateScripts( self ):
         shouldReload = False

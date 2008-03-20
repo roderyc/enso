@@ -2,7 +2,6 @@ from enso.commands import CommandObject
 from enso.commands.factories import GenericPrefixFactory
 from enso.commands.factories import ArbitraryPostfixFactory
 from enso.messages import displayMessage
-from enso.contrib.scriptotron.tracebacks import TracebackCommand
 
 ARG_REQUIRED_MSG = "<p>An argument is required.</p>"
 
@@ -21,13 +20,10 @@ class FuncCommand( CommandObject ):
         self.setDescription( desc )
 
     def run( self ):
-        try:
-            if self.takesArg:
-                self.func(self.argValue)
-            else:
-                self.func()
-        except Exception:
-            TracebackCommand.setTracebackInfo()
+        if self.takesArg:
+            self.func(self.argValue)
+        else:
+            self.func()
 
 class NoArgumentCommand( CommandObject ):
     def __init__( self, description, message ):
@@ -83,10 +79,9 @@ class BoundedArgFuncCommand( GenericPrefixFactory, ArgFuncMixin ):
         ArgFuncMixin.__init__( self, *args, **kwargs )
 
     def update( self ):
-        try:
-            self._postfixes = self.func.__getvalidargs__()
-        except Exception:
-            TracebackCommand.setTracebackInfo()
+        validargs = self.func.__getvalidargs__()
+        if validargs is not None:
+            self._postfixes = validargs
 
     _generateCommandObj = ArgFuncMixin._generateCommandObj
 

@@ -47,3 +47,36 @@ class TracebackCommand( CommandObject ):
             traceback.format_exc()
         cls.tracebackText = tbText
         displayMessage( _makeExcInfoMsgText(*sys.exc_info()) )
+
+def safetyNetted( func ):
+    """
+    Decorator that wraps the given function in a try..except clause;
+    if any exception is raised by the function, a transparent message
+    is displayed informing the user, and they will be able to use the
+    'traceback' command to investigate further.
+
+    If an exception occurs, the wrapped function will return None.
+    """
+
+    def wrapper( *args, **kwargs ):
+        try:
+            return func( *args, **kwargs )
+        except Exception:
+            TracebackCommand.setTracebackInfo()
+            return None
+    return wrapper
+
+def addSafetyNetToCmdInfo( info ):
+    """
+    Adds the 'safetyNetted' decorator to all relevant functions in the
+    given command info dictionary.
+
+    As such, this function destructively modifies the given command
+    info dictionary.
+    """
+
+    origFunc = info["func"]
+    newFunc = safetyNetted( origFunc )
+    if info["cmdType"] == "bounded-arg":
+        newFunc.__getvalidargs__ = safetyNetted( origFunc.__getvalidargs__ )
+    info["func"] = newFunc
