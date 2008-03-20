@@ -133,6 +133,7 @@ baseEnv = Environment(
     INPUT_INSTALL_DIR = "#enso_win32/input",
     GRAPHICS_INSTALL_DIR = "#enso_win32/graphics",
     CAIRO_INSTALL_DIR = "#enso_win32/cairo",
+    CLIPBOARD_INSTALL_DIR = "#enso_win32/selection",
     LIB_INSTALL_DIR = "#enso_win32",
     BASE_INCLUDE_DIR = "#src",
     BASE_PYTHON_DIR = "C:\\Python24",
@@ -205,3 +206,4 @@ else:
 SConscript( "src/Logging/SConscript", exports="env" )
 SConscript( "src/InputManager/SConscript", exports="env" )
 SConscript( "src/Graphics/SConscript", exports="env" )
+SConscript( "src/ClipboardBackend/SConscript", exports="env" )
