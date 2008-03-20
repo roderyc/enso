@@ -53,7 +53,6 @@ libs = [
     "User32",
     "CLogging",
     "AsyncEventProcessorRegistry",
-    "Python24",
     clipboardBackendLib
     ]
 
