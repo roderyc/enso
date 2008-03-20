@@ -41,6 +41,7 @@
 # ----------------------------------------------------------------------------
 
 import os
+import sys
 import re
 
 # ----------------------------------------------------------------------------
@@ -136,11 +137,9 @@ baseEnv = Environment(
     CLIPBOARD_INSTALL_DIR = "#enso_win32/selection",
     LIB_INSTALL_DIR = "#enso_win32",
     BASE_INCLUDE_DIR = "#src",
-    BASE_PYTHON_DIR = "C:\\Python24",
     SWIG = "C:\\swig\\swig.exe",
     DEBUG = 0
     )
-
 
 
 # ----------------------------------------------------------------------------
@@ -156,7 +155,8 @@ baseEnv.Tool( "HumanizedUtilsTool", toolpath = ["SConsTools"] )
 
 # Python
 baseEnv.addLib(
-    basePath = baseEnv[ "BASE_PYTHON_DIR" ],
+    # sys.prefix contains the path to the base of the Python installation.
+    basePath = sys.prefix,
     libPath = "libs",
     includePath = "include",
     )
