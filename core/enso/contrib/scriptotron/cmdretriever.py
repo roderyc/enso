@@ -14,7 +14,7 @@ def _getCommandInfoFromFunc( func, funcName = None, cmdName = None,
     """
     Examples:
 
-      >>> def do_stuff():
+      >>> def do_stuff(ensoapi):
       ...   pass
 
       >>> info = _getCommandInfoFromFunc( do_stuff )
@@ -53,9 +53,9 @@ def _getCommandInfoFromFunc( func, funcName = None, cmdName = None,
 
     isArgRequired = False
 
-    if len( args ) == 1:
+    if len( args ) == 2:
         if not argName:
-            argName = _makeVarNameHumanReadable( args[0] )
+            argName = _makeVarNameHumanReadable( args[1] )
         if not cmdExpr:
             cmdExpr = "%s {%s}" % (cmdName, argName)
         if not argDefaults:
@@ -68,6 +68,12 @@ def _getCommandInfoFromFunc( func, funcName = None, cmdName = None,
             cmdType = "arbitrary-arg"
     else:
         # It's a command that takes no arguments.
+
+        # TODO: We also arrive here if the function takes a weird
+        # number of arguments; for now we'll just assume the user can
+        # figure out what's going on wrong when they get a traceback
+        # that not enough/too many args were supplied to the function.
+
         argName = None
         cmdExpr = cmdName
         cmdType = "no-arg"
@@ -86,7 +92,7 @@ def getCommandsFromObjects( objects, namePrefix = SCRIPT_PREFIX ):
     Example:
 
       >>> execGlobals = {}
-      >>> exec "def cmd_do_things(): pass" in execGlobals
+      >>> exec "def cmd_do_things(ensoapi): pass" in execGlobals
       >>> commands = getCommandsFromObjects( execGlobals )
       >>> len( commands )
       1

@@ -7,6 +7,7 @@ from enso.contrib.scriptotron.tracebacks import addSafetyNetToCmdInfo
 from enso.contrib.scriptotron.tracebacks import safetyNetted
 from enso.contrib.scriptotron import adapters
 from enso.contrib.scriptotron import cmdretriever
+from enso.contrib.scriptotron import ensoapi
 
 SCRIPTS_FILE_NAME = ".ensocommands"
 
@@ -32,7 +33,7 @@ class ScriptCommandTracker:
         self._clearCommands()
         for info in commandInfoList:
             addSafetyNetToCmdInfo( info )
-            cmd = adapters.makeCommandFromInfo( info )
+            cmd = adapters.makeCommandFromInfo( info, ensoapi.EnsoApi() )
             self._registerCommand( cmd, info["cmdExpr"] )
 
 class ScriptTracker:
