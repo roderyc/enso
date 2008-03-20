@@ -64,6 +64,7 @@ PROVIDERS = ["enso_osx", "enso_linux", "enso_win32"]
 # List of modules/packages that support the plugin interface to
 # extend Enso.  The plugins are loaded in the order that they
 # are specified in this list.
-PLUGINS = ["enso.contrib.help",
+PLUGINS = ["enso.contrib.scriptotron",
+           "enso.contrib.help",
            "enso.contrib.google",
            "enso.contrib.evaluate"]
