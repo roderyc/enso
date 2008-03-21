@@ -11,9 +11,10 @@ from enso.contrib.scriptotron import ensoapi
 SCRIPTS_FILE_NAME = ".ensocommands"
 
 class ScriptCommandTracker:
-    def __init__( self, commandManager ):
+    def __init__( self, commandManager, eventManager ):
         self._cmdExprs = []
         self._cmdMgr = commandManager
+        self._evtMgr = eventManager
 
     def _clearCommands( self ):
         for cmdExpr in self._cmdExprs:
@@ -31,12 +32,17 @@ class ScriptCommandTracker:
     def registerNewCommands( self, commandInfoList ):
         self._clearCommands()
         for info in commandInfoList:
-            cmd = adapters.makeCommandFromInfo( info, ensoapi.EnsoApi() )
+            cmd = adapters.makeCommandFromInfo(
+                info,
+                ensoapi.EnsoApi(),
+                self._evtMgr
+                )
             self._registerCommand( cmd, info["cmdExpr"] )
 
 class ScriptTracker:
     def __init__( self, eventManager, commandManager ):
-        self._scriptCmdTracker = ScriptCommandTracker( commandManager )
+        self._scriptCmdTracker = ScriptCommandTracker( commandManager,
+                                                       eventManager )
         # TODO: os.environ["HOME"] only works 'out-of-the-box' on
         # unix; we need to do something different, preferably
         # in platform-specific backends.

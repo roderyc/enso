@@ -1,3 +1,5 @@
+import types
+
 from enso.commands import CommandObject
 from enso.commands.factories import GenericPrefixFactory
 from enso.commands.factories import ArbitraryPostfixFactory
@@ -7,7 +9,7 @@ ARG_REQUIRED_MSG = "<p>An argument is required.</p>"
 
 class FuncCommand( CommandObject ):
     def __init__( self, cmdName, func, desc, help, ensoapi, 
-                  takesArg = False, argValue = None ):
+                  eventManager, takesArg = False, argValue = None ):
         CommandObject.__init__( self )
 
         self.name = cmdName
@@ -15,6 +17,7 @@ class FuncCommand( CommandObject ):
         self.takesArg = takesArg
         self.argValue = argValue
         self.ensoapi = ensoapi
+        self.eventManager = eventManager
 
         self.setName( cmdName )
         self.setHelp( help )
@@ -23,9 +26,29 @@ class FuncCommand( CommandObject ):
     @safetyNetted
     def run( self ):
         if self.takesArg:
-            self.func(self.ensoapi, self.argValue)
+            result = self.func(self.ensoapi, self.argValue)
         else:
-            self.func(self.ensoapi)
+            result = self.func(self.ensoapi)
+
+        if isinstance( result, types.GeneratorType ):
+            self._invokeGenerator( result )
+
+    def _invokeGenerator( self, generator ):
+        @safetyNetted
+        def generatorCaller( msPassed ):
+            try:
+                generator.next()
+            except Exception, e:
+                self.eventManager.removeResponder(
+                    generatorCaller
+                    )
+                if not isinstance( e, StopIteration ):
+                    raise
+
+        self.eventManager.registerResponder(
+            generatorCaller,
+            "timer"
+            )
 
 class NoArgumentCommand( CommandObject ):
     def __init__( self, description, message, ensoapi ):
@@ -39,12 +62,13 @@ class NoArgumentCommand( CommandObject ):
 
 class ArgFuncMixin( object ):
     def __init__( self, cmdName, cmdExpr, func, argName, desc,
-                  help, ensoapi, isArgRequired ):
+                  help, ensoapi, eventManager, isArgRequired ):
         self.cmdName = cmdName
         self.func = func
         self.desc = desc
         self.isArgRequired = isArgRequired
         self.ensoapi = ensoapi
+        self.eventManager = eventManager
 
         self.HELP_TEXT = argName
         self.NAME = cmdExpr
@@ -68,6 +92,7 @@ class ArgFuncMixin( object ):
                 desc = self.desc,
                 help = self.getHelp(),
                 ensoapi = self.ensoapi,
+                eventManager = self.eventManager,
                 takesArg = bool(postfix),
                 argValue = postfix
                 )
@@ -90,14 +115,15 @@ class BoundedArgFuncCommand( GenericPrefixFactory, ArgFuncMixin ):
 
     _generateCommandObj = ArgFuncMixin._generateCommandObj
 
-def makeCommandFromInfo( info, ensoapi ):
+def makeCommandFromInfo( info, ensoapi, eventManager ):
     if info["cmdType"] == "no-arg":
         return FuncCommand(
             info["cmdName"],
             info["func"],
             info["desc"],
             info["help"],
-            ensoapi
+            ensoapi,
+            eventManager
             )
     elif info["cmdType"] in ["bounded-arg", "arbitrary-arg"]:
         if info["cmdType"] == "bounded-arg":
@@ -112,6 +138,7 @@ def makeCommandFromInfo( info, ensoapi ):
             info["desc"],
             info["help"],
             ensoapi,
+            eventManager,
             info["isArgRequired"]
             )
     else:
