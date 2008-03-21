@@ -94,7 +94,7 @@ class BoundedArgFuncCommand( GenericPrefixFactory, ArgFuncMixin ):
 
     @safetyNetted
     def update( self ):
-        self._postfixes = self.func.__getvalidargs__()
+        self._postfixes = self.func.valid_args
 
     _generateCommandObj = ArgFuncMixin._generateCommandObj
 
