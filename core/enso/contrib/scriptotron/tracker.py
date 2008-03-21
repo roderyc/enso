@@ -1,9 +1,11 @@
 import logging
 import os
+import types
 
 from enso.commands.manager import CommandAlreadyRegisteredError
 from enso.contrib.scriptotron.tracebacks import TracebackCommand
 from enso.contrib.scriptotron.tracebacks import safetyNetted
+from enso.contrib.scriptotron.events import EventResponderList
 from enso.contrib.scriptotron import adapters
 from enso.contrib.scriptotron import cmdretriever
 from enso.contrib.scriptotron import ensoapi
@@ -15,19 +17,33 @@ class ScriptCommandTracker:
     def __init__( self, commandManager, eventManager ):
         self._cmdExprs = []
         self._cmdMgr = commandManager
-        self._evtMgr = eventManager
         self._genMgr = concurrency.GeneratorManager( eventManager )
+        self._qmStartEvents = EventResponderList(
+            eventManager,
+            "startQuasimode",
+            self._onQuasimodeStart
+            )
+
+    @safetyNetted
+    def _callHandler( self, handler ):
+        result = handler()
+        if isinstance( result, types.GeneratorType ):
+            self._genMgr.add( result )
+
+    def _onQuasimodeStart( self ):
+        for handler in self._qmStartEvents:
+            self._callHandler( handler )
 
     def _clearCommands( self ):
         for cmdExpr in self._cmdExprs:
             self._cmdMgr.unregisterCommand( cmdExpr )
         self._cmdExprs = []
+        self._qmStartEvents[:] = []
         self._genMgr.reset()
 
     def _registerCommand( self, cmdObj, cmdExpr ):
         try:
-            self._cmdMgr.registerCommand( cmdExpr,
-                                          cmdObj )
+            self._cmdMgr.registerCommand( cmdExpr, cmdObj )
             self._cmdExprs.append( cmdExpr )
         except CommandAlreadyRegisteredError:
             logging.warn( "Command already registered: %s" % cmdExpr )
@@ -35,6 +51,8 @@ class ScriptCommandTracker:
     def registerNewCommands( self, commandInfoList ):
         self._clearCommands()
         for info in commandInfoList:
+            if hasattr( info["func"], "on_quasimode_start" ):
+                self._qmStartEvents.append( info["func"].on_quasimode_start )
             cmd = adapters.makeCommandFromInfo(
                 info,
                 ensoapi.EnsoApi(),
