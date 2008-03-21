@@ -9,7 +9,7 @@ SCRIPT_PREFIX = "cmd_"
 def _makeVarNameHumanReadable( funcName ):
     return funcName.replace( "_", " " )
 
-def _getCommandInfoFromFunc( func, funcName = None, cmdName = None,
+def _getCommandInfoFromFunc( func, funcName, cmdName,
                              argName = None, cmdExpr = None ):
     """
     Examples:
@@ -17,7 +17,8 @@ def _getCommandInfoFromFunc( func, funcName = None, cmdName = None,
       >>> def do_stuff(ensoapi):
       ...   pass
 
-      >>> info = _getCommandInfoFromFunc( do_stuff )
+      >>> info = _getCommandInfoFromFunc( do_stuff, 'do_stuff',
+      ...                                 'do stuff' )
       >>> info['cmdName']
       'do stuff'
       >>> info['argName']
@@ -31,12 +32,6 @@ def _getCommandInfoFromFunc( func, funcName = None, cmdName = None,
       ''
     """
 
-    if not funcName:
-        funcName = func.__name__
-
-    if not cmdName:
-        cmdName = _makeVarNameHumanReadable( funcName )
-
     if func.__doc__:
         lines = func.__doc__.strip().splitlines()
         desc = lines[0]
@@ -44,6 +39,12 @@ def _getCommandInfoFromFunc( func, funcName = None, cmdName = None,
     else:
         desc = "Runs the python script command: %s()" % funcName
         help = ""
+
+    if hasattr( func, "description" ):
+        desc = func.description
+
+    if hasattr( func, "help" ):
+        help = func.help
 
     if isinstance( func, types.FunctionType ):
         args, _, _, argDefaults = inspect.getargspec( func )
@@ -111,15 +112,16 @@ def getCommandsFromObjects( objects, namePrefix = SCRIPT_PREFIX ):
         func = objects[name]
         argName = None
         cmdExpr = None
-        if hasattr( func, "__name__" ) and func.__name__ != name:
-            match = COMMAND_EXPRESSION.match( func.__name__ )
+        nameFound = False
+        if hasattr( func, "name" ):
+            match = COMMAND_EXPRESSION.match( func.name )
             if match:
                 cmdName = match.group( "cmd" )
                 argName = match.group( "arg" )
-                cmdExpr = func.__name__
-            else:
-                cmdName = func.__name__
-        else:
+                cmdExpr = func.name
+                nameFound = True
+
+        if not nameFound:
             cmdName = _makeVarNameHumanReadable( name[len(namePrefix):] )
 
         info = _getCommandInfoFromFunc(
