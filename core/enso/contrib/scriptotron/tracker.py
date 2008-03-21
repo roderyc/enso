@@ -7,6 +7,7 @@ from enso.contrib.scriptotron.tracebacks import safetyNetted
 from enso.contrib.scriptotron import adapters
 from enso.contrib.scriptotron import cmdretriever
 from enso.contrib.scriptotron import ensoapi
+from enso.contrib.scriptotron import concurrency
 
 SCRIPTS_FILE_NAME = ".ensocommands"
 
@@ -15,11 +16,13 @@ class ScriptCommandTracker:
         self._cmdExprs = []
         self._cmdMgr = commandManager
         self._evtMgr = eventManager
+        self._genMgr = concurrency.GeneratorManager( eventManager )
 
     def _clearCommands( self ):
         for cmdExpr in self._cmdExprs:
             self._cmdMgr.unregisterCommand( cmdExpr )
         self._cmdExprs = []
+        self._genMgr.reset()
 
     def _registerCommand( self, cmdObj, cmdExpr ):
         try:
@@ -35,7 +38,7 @@ class ScriptCommandTracker:
             cmd = adapters.makeCommandFromInfo(
                 info,
                 ensoapi.EnsoApi(),
-                self._evtMgr
+                self._genMgr
                 )
             self._registerCommand( cmd, info["cmdExpr"] )
 
