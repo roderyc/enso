@@ -5,7 +5,7 @@ from enso.commands.factories import GenericPrefixFactory
 from enso.commands.factories import ArbitraryPostfixFactory
 from enso.contrib.scriptotron.tracebacks import safetyNetted
 
-ARG_REQUIRED_MSG = "<p>An argument is required.</p>"
+ARG_REQUIRED_MSG = "An argument is required."
 
 class FuncCommand( CommandObject ):
     def __init__( self, cmdName, func, desc, help, ensoapi, 
