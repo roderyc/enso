@@ -9,9 +9,9 @@
 import unittest
 import os
 
-from enso.ui.commands.manager import CommandObjectRegistry
-from enso.ui.commands.manager import CommandAlreadyRegisteredError
-from enso.ui.commands.interfaces import CommandExpression
+from enso.commands.manager import CommandObjectRegistry
+from enso.commands.manager import CommandAlreadyRegisteredError
+from enso.commands.interfaces import CommandExpression
 
 
 # ----------------------------------------------------------------------------

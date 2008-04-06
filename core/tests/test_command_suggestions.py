@@ -8,7 +8,7 @@
 
 import unittest
 
-from enso.ui.commands import suggestions
+from enso.commands import suggestions
 
 
 # ----------------------------------------------------------------------------
