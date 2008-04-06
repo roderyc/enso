@@ -156,6 +156,7 @@ class Suggestion:
         result = enso.utils.strings.stringRatio( self.__source,
                                                  self.__suggestion )
         assert (result >= 0) and (result <= 1)
+        return result
 
     def __eq__( self, other ):
         """
