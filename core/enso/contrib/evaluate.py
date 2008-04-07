@@ -93,7 +93,7 @@ class EvalCommand( CommandObject ):
                 evalSuccessful = True
             except Exception, e:
                 self._displayMessage(
-                    "<p>Error: %s</p>" % xml_tools.escapeXml(str(e))
+                    "<p>Error: %s</p>" % xml_tools.escape_xml(str(e))
                     )
 
         if evalSuccessful:

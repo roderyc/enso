@@ -42,7 +42,7 @@
 
 from enso import graphics
 from enso.graphics import xmltextlayout
-from enso.utils.xml_tools import escapeXml
+from enso.utils.xml_tools import escape_xml
 
 
 # ----------------------------------------------------------------------------
@@ -213,10 +213,10 @@ def retrieveSuggestionStyles( active = True, size = SMALL_SCALE[-1] ):
     return styles
 
 
-def layoutXmlLine( xmlData, styles, scale ):
+def layoutXmlLine( xml_data, styles, scale ):
     """
-    Performs a layout of a line using xmlData and styles, doing
-    its best to display all of the text of xmlData at the largest
+    Performs a layout of a line using xml_data and styles, doing
+    its best to display all of the text of xml_data at the largest
     size allowed by scale (a list of font sizes).  If the text will
     not fit even at the smallest size of scale, then ellipsifies
     the text at that size.
@@ -227,7 +227,7 @@ def layoutXmlLine( xmlData, styles, scale ):
         try:
             _updateStyles( styles, scale, size )
             document = xmltextlayout.xmlMarkupToDocument(
-                xmlData,
+                xml_data,
                 styles,
                 XML_ALIASES,
                 )
@@ -247,7 +247,7 @@ def layoutXmlLine( xmlData, styles, scale ):
         # no size above worked; use the smallest size
         _updateStyles( styles, scale, scale[0] )
         document = xmltextlayout.xmlMarkupToDocument(
-            xmlData,
+            xml_data,
             styles,
             XML_ALIASES,
             )
@@ -287,24 +287,24 @@ class QuasimodeLayout:
 
         suggestionList = quasimode.getSuggestionList()
         description = suggestionList.getDescription()
-        description = escapeXml( description )
+        description = escape_xml( description )
         suggestions = suggestionList.getSuggestions()
         activeIndex = suggestionList.getActiveIndex()
 
         lines.append( layoutXmlLine(
-            xmlData = self.LINE_XML % description, 
+            xml_data = self.LINE_XML % description, 
             styles = retrieveDescriptionStyles(),
             scale = DESCRIPTION_SCALE,
             ) )
 
         if len(suggestions[0].toXml()) == 0:
             text = suggestions[0].getSource()
-            text = escapeXml( text )
+            text = escape_xml( text )
         else:
             text = suggestions[0].toXml()
 
         lines.append( layoutXmlLine(
-            xmlData = self.LINE_XML % text,
+            xml_data = self.LINE_XML % text,
             styles = retrieveAutocompleteStyles( active = (activeIndex==0) ),
             scale = AUTOCOMPLETE_SCALE,
             ) )
@@ -312,7 +312,7 @@ class QuasimodeLayout:
         for index in range( 1, len(suggestions) ):
             isActive = (activeIndex==index)
             lines.append( layoutXmlLine(
-                xmlData = self.LINE_XML % suggestions[index].toXml(),
+                xml_data = self.LINE_XML % suggestions[index].toXml(),
                 styles = retrieveSuggestionStyles( active = isActive ),
                 scale = SUGGESTION_SCALE,
                 ) )

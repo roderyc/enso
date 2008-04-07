@@ -57,7 +57,7 @@ from enso import config
 from enso import input
 
 from enso.utils.strings import stringRatioBestMatch
-from enso.utils.xml_tools import escapeXml
+from enso.utils.xml_tools import escape_xml
 from enso.quasimode.suggestionlist import TheSuggestionList
 from enso.quasimode.window import TheQuasimodeWindow
 
@@ -374,9 +374,9 @@ class Quasimode:
 
         # Generate a caption for the message with a couple suggestions
         # for command names similar to the user's text
-        caption = self.__commandSuggestionCaption( escapeXml( userText ) )
+        caption = self.__commandSuggestionCaption( escape_xml( userText ) )
         badCmd = userText.lower()
-        badCmd = escapeXml( badCmd )
+        badCmd = escape_xml( badCmd )
         # Create and display a primary message.
         text = config.BAD_COMMAND_MSG
         text = text % ( badCmd, caption )

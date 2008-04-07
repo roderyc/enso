@@ -46,7 +46,7 @@ from enso import graphics
 from enso.graphics import xmltextlayout
 from enso.graphics.measurement import inchesToPoints
 from enso.graphics import rounded_rect
-from enso.utils.xml_tools import escapeXml
+from enso.utils.xml_tools import escape_xml
 from enso.messages.windows import MessageWindow, computeWidth
 
 
@@ -498,7 +498,7 @@ def layoutMessageXml( xmlMarkup, width, size, height, ellipsify="false",
                       % ( xmlMarkup, e ) )
         document = xmltextlayout.xmlMarkupToDocument(
             "<document><p>%s</p>%s</document>" %
-                 ( escapeXml( xmlMarkup.strip() ),
+                 ( escape_xml( xmlMarkup.strip() ),
                    "<caption>from a broken message</caption>" ),
             _styles,
             _tagAliases

@@ -40,14 +40,6 @@
 """
 
 # ----------------------------------------------------------------------------
-# Imports
-# ----------------------------------------------------------------------------
-
-import cStringIO
-import xml.sax.handler
-
-
-# ----------------------------------------------------------------------------
 # Public Constants
 # ----------------------------------------------------------------------------
 
@@ -98,48 +90,48 @@ _UNICODE_INVALID_CONTROL_CHARACTERS_TRANSLATION_TABLE = {}
 for _char in INVALID_CONTROL_CHARACTERS:
     _UNICODE_INVALID_CONTROL_CHARACTERS_TRANSLATION_TABLE[_char] = None
 
-_chars = []
+_TEMPCHARS = []
 for _char in range(256):
-    _chars.append( chr(_char) )
+    _TEMPCHARS.append( chr(_char) )
 
 # Identity transformation string for the str.translate() method.
-_STRING_IDENTITY_TRANSLATION = "".join( _chars )
+_STRING_IDENTITY_TRANSLATION = "".join( _TEMPCHARS )
 
-_chars = []
+_TEMPCHARS = []
 for _char in INVALID_CONTROL_CHARACTERS:
-    _chars.append( chr(_char) )
+    _TEMPCHARS.append( chr(_char) )
 
 # Deletechars string for the str.translate() method, used to remove
 # invalid control characters.
-_STRING_INVALID_CONTROL_CHARACTERS_DELETECHARS = "".join( _chars )
+_STRING_INVALID_CONTROL_CHARACTERS_DELETECHARS = "".join( _TEMPCHARS )
 
 del _char
-del _chars
+del _TEMPCHARS
 
 
 # ----------------------------------------------------------------------------
 # DOM Node functions
 # ----------------------------------------------------------------------------
 
-def getInnerText( domNode ):
+def get_inner_text( dom_node ):
     """
     Returns a unicode string that is the amalgamation of all the text
-    interior to node domNode.  Recursively grabs the inner text from
+    interior to node dom_node.  Recursively grabs the inner text from
     all descendent (child, grandchild, etc.) nodes.
     """
 
-    textStrings = []
-    for node in  domNode.childNodes:
-        if node.nodeType == domNode.TEXT_NODE \
-               or node.nodeType == domNode.CDATA_SECTION_NODE:
-            textStrings.append( node.data )
+    text_strings = []
+    for node in  dom_node.childNodes:
+        if node.nodeType == dom_node.TEXT_NODE \
+               or node.nodeType == dom_node.CDATA_SECTION_NODE:
+            text_strings.append( node.data )
         else:
-            textStrings.append( getInnerText( node ) )
+            text_strings.append( get_inner_text( node ) )
         
-    return "".join( textStrings ).strip()
+    return "".join( text_strings ).strip()
 
 
-def removeInvalidControlCharacters( string ):
+def remove_invalid_control_chars( string ):
     """
     Removes invalid control characters from the given string.  The
     string can be a standard Python string or a unicode object.
@@ -163,15 +155,15 @@ def removeInvalidControlCharacters( string ):
     return string
 
 
-def escapeXml( xmlData ):
+def escape_xml( xml_data ):
     """
-    Returns a string in which all the xml characters of xmlData have
+    Returns a string in which all the xml characters of xml_data have
     been escaped once (e.g., "&" -> "&amp;", and "<" -> "&lt;"), and
-    also removes any invalid control characters from xmlData.
+    also removes any invalid control characters from xml_data.
     """
     
-    xmlData = xmlData.replace( "&", "&amp;" )
-    xmlData = xmlData.replace( "<", "&lt;" )
+    xml_data = xml_data.replace( "&", "&amp;" )
+    xml_data = xml_data.replace( "<", "&lt;" )
     # This is needed to escape the sequence "]]>"
-    xmlData = xmlData.replace( ">", "&gt;" )
-    return removeInvalidControlCharacters( xmlData )
+    xml_data = xml_data.replace( ">", "&gt;" )
+    return remove_invalid_control_chars( xml_data )

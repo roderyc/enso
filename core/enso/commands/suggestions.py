@@ -322,7 +322,7 @@ class Suggestion:
                             xmlFormat = "<alt>%s</alt>"
                         else:
                             xmlFormat = "<ins>%s</ins>"
-                        xmlText += xmlFormat % enso.utils.xml_tools.escapeXml(
+                        xmlText += xmlFormat % enso.utils.xml_tools.escape_xml(
                             unusedSuggestion[:index]
                             )
                         # NOTE: Do not add inserted characters to the
@@ -331,7 +331,7 @@ class Suggestion:
                     # the start of the unused suggestion and "here",
                     # any unmatched chars are now defunct.
                     unmatchedChars = ""
-                    xmlText += enso.utils.xml_tools.escapeXml( target )
+                    xmlText += enso.utils.xml_tools.escape_xml( target )
                     completion += target
                     unusedSuggestion = unusedSuggestion[index+len(target):]
                     unusedSource = unusedSource[i:]
@@ -366,7 +366,7 @@ class Suggestion:
                 format = "<alt>%s</alt>" 
             else:
                 format = "<ins>%s</ins>"
-            unusedXml = enso.utils.xml_tools.escapeXml( unusedSuggestion )
+            unusedXml = enso.utils.xml_tools.escape_xml( unusedSuggestion )
             xmlText += format % unusedXml
 
             completion += unusedSuggestion.split(" ")[0]
