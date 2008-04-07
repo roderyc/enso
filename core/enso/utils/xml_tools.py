@@ -95,26 +95,26 @@ INVALID_CONTROL_CHARACTERS = [
 # Unicode translation table to remove invalid control characters.
 _UNICODE_INVALID_CONTROL_CHARACTERS_TRANSLATION_TABLE = {}
 
-for char in INVALID_CONTROL_CHARACTERS:
-    _UNICODE_INVALID_CONTROL_CHARACTERS_TRANSLATION_TABLE[char] = None
+for _char in INVALID_CONTROL_CHARACTERS:
+    _UNICODE_INVALID_CONTROL_CHARACTERS_TRANSLATION_TABLE[_char] = None
 
-chars = []
-for char in range(256):
-    chars.append( chr(char) )
+_chars = []
+for _char in range(256):
+    _chars.append( chr(_char) )
 
 # Identity transformation string for the str.translate() method.
-_STRING_IDENTITY_TRANSLATION = "".join( chars )
+_STRING_IDENTITY_TRANSLATION = "".join( _chars )
 
-chars = []
-for char in INVALID_CONTROL_CHARACTERS:
-    chars.append( chr(char) )
+_chars = []
+for _char in INVALID_CONTROL_CHARACTERS:
+    _chars.append( chr(_char) )
 
 # Deletechars string for the str.translate() method, used to remove
 # invalid control characters.
-_STRING_INVALID_CONTROL_CHARACTERS_DELETECHARS = "".join( chars )
+_STRING_INVALID_CONTROL_CHARACTERS_DELETECHARS = "".join( _chars )
 
-del char
-del chars
+del _char
+del _chars
 
 
 # ----------------------------------------------------------------------------
@@ -175,85 +175,3 @@ def escapeXml( xmlData ):
     # This is needed to escape the sequence "]]>"
     xmlData = xmlData.replace( ">", "&gt;" )
     return removeInvalidControlCharacters( xmlData )
-
-
-# ----------------------------------------------------------------------------
-# Xml Identy Sax Handler Class
-# ----------------------------------------------------------------------------
-
-class XmlIdentityHandler( xml.sax.handler.ContentHandler ):
-    """
-    TODO: Document this class and its methods.
-    """
-    
-    def __init__( self, outFile = None ):
-        xml.sax.handler.ContentHandler.__init__( self )
-        if outFile:
-            self.output = outFile
-        else:
-            self.output = cStringIO.StringIO()
-
-    def writeStartTag( self, tag, attrs = None ):
-        self.output.write( "<" )
-        self.output.write( tag )
-        if attrs:
-            for key in attrs.keys():
-                value = attrs[key]
-                text = " %s=\"%s\"" 
-                self.output.write( text % (key,value) )
-        self.output.write( ">" )
-
-    def writeEndTag( self, tag ):
-        self.output.write( "</" )
-        self.output.write( tag )
-        self.output.write( ">" )
-
-    def characters( self, chars ):
-        self.output.write( escapeXml( chars ) )
-
-    def startElement( self, tag, attrs ):
-        self.writeStartTag( tag, attrs )
-
-    def endElement( self, tag ):
-        self.writeEndTag( tag )
-
-    def processingInstruction( self, target, data ):
-        self.output.write( "<?" )
-        self.output.write( target )
-        self.output.write( " " )
-        self.output.write( data )
-        self.output.write( ">" )
-
-
-def runTransform( handler, file, parser ):
-    """
-    TODO: Document this function.
-    """
-    
-    parser.setContentHandler( handler )
-    parser.parse( file )
-    handler.output.seek( 0 )
-    return handler.output
-
-
-# ----------------------------------------------------------------------------
-# "Directory" Entity Resolver
-# ----------------------------------------------------------------------------
-
-class DirResolver( xml.sax.handler.EntityResolver ):
-    """
-    TODO: Document this class and its methods.
-    """
-    
-    def __init__( self, dir ):
-        self.dir = dir
-
-    def resolveEntity( self, publicId, systemId ):
-        # Stop pychecker from complaining about unused args...
-        dummy = publicId
-
-        import os.path
-        fileName = os.path.join( self.dir, systemId )
-        if os.path.exists( fileName ):
-            return fileName
-        return systemId
