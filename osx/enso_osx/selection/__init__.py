@@ -23,11 +23,6 @@ def _getClipboardFiles():
     else:
         return []
 
-def _setClipboardString( string, format ):
-    pb = AppKit.NSPasteboard.generalPasteboard()
-    sendMsg( pb, "declareTypes:", [format], "owner:", None )
-    return sendMsg( pb, "setString:", string, "forType:", format )
-
 def get():
     selection = {}
 
@@ -61,14 +56,29 @@ def set( seldict ):
         "html" : AppKit.NSHTMLPboardType
         }
 
-    for selType, clipboardType in selClipboardMapping.items():
-        if ( seldict.get( selType ) and
-             _setClipboardString( seldict[selType], clipboardType ) ):
-            tryToPaste = True
+    # TODO: Actually decide on an ordering of richest to least-rich
+    # clipboard types, b/c this matters in OS X.
 
-    if tryToPaste:
-        # TODO: Figure out whether the paste is successful.
-        key_utils.simulatePaste()
-        success = True
+    typesToPaste = [ selType for selType in selClipboardMapping
+                     if seldict.has_key( selType ) ]
+
+    if typesToPaste:
+        pb = AppKit.NSPasteboard.generalPasteboard()
+
+        sendMsg( pb,
+                 "declareTypes:", [ selClipboardMapping[selType]
+                                    for selType in typesToPaste ],
+                 "owner:", None )
+
+        for selType in typesToPaste:
+            if sendMsg( pb,
+                        "setString:", seldict[selType],
+                        "forType:", selClipboardMapping[selType] ):
+                tryToPaste = True
+
+        if tryToPaste:
+            # TODO: Figure out whether the paste is successful.
+            key_utils.simulatePaste()
+            success = True
 
     return success
