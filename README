@@ -1,26 +1,44 @@
 Enso Readme
 ===========
 
-In order to build and run Enso, you'll first need to set up a
-platform-specific backend.
+Enso is an extensible, cross-platform quasimodal linguistic
+command-line interface written in Python.
 
-At present, there's only one such backend, for Mac OS X.  It's located
-in the 'osx' directory; for setup instructions, please see
-'osx/README'.
+Building Enso
+-------------
 
-Once that's done, you'll have to set up and run Enso itself.  You can
-find information on how to do this in 'core/README'.
+To build Enso, you need:
+  * Python 2.4 or above
+    This can be found at http://www.python.org.
 
-Good luck!
+  * SCons
+    This open-source, python-based build tool can be found at
+    http://www.scons.org.
 
-Other Resources
----------------
+You'll also need the appropriate prerequisites for your particular
+platform.  Please consult one of the following files:
 
-The latest version of the code can always be found at:
+  README.osx    (Mac OS X)
+  README.win32  (Microsoft Windows)
+  README.linux  (Linux and other Un*x-based platforms)
 
-    http://code.google.com/p/enso/
+Once you've read this file, just run 'scons' from the root directory
+of the source tree.
 
-If you have any questions, please feel free to check out
-the enso-developers group:
+Running Enso
+------------
 
-    http://groups.google.com/group/enso-developers
+To run Enso, just excecute the following from the root directory of
+the source tree:
+
+  python scripts/run_enso.py
+
+Installing Enso System-Wide
+---------------------------
+
+Enso has a distutils-based install script that can be used to install
+Enso system-wide, but it currently only works on Linux (see issue 19).
+
+To use it, just run
+
+  python setup.py install
