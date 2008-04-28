@@ -2,7 +2,9 @@ import logging
 import subprocess
 import errno
 import os
+import sys
 import signal
+import atexit
 
 import objc
 import Foundation
@@ -132,6 +134,17 @@ class _Timer( Foundation.NSObject ):
     def onTimer( self ):
         self.__callback()
 
+class _AppDelegate( Foundation.NSObject ):
+    def applicationShouldTerminate_( self, sender ):
+        logging.info( "applicationShouldTerminate() called." )
+        return AppKit.NSTerminateNow
+
+    def applicationWillTerminate_( self, notification ):
+        # The sys.exitfunc() won't get called unless we explicitly
+        # call it here, because OS X is going to terminate our app,
+        # not Python.
+        sys.exitfunc()
+
 class _KeyListener( Foundation.NSObject ):
     def initWithCallback_( self, callback ):
         self = super( _KeyListener, self ).init()
@@ -164,17 +177,33 @@ class _KeyListener( Foundation.NSObject ):
         sendMsg( self.__center,
                   "removeObserver:", self )
 
+def nestedAutoreleasePooled(func):
+    """
+    Decorator that executes the wrapped function in a nested
+    autorelease pool, so that any Objective-C memory that is unneeded
+    is released when the function returns, rather than at some unknown
+    later time.
+    """
+
+    def wrappedFunc(*args, **kwargs):
+        pool = AppKit.NSAutoreleasePool.alloc().init()
+        retval = func(*args, **kwargs)
+        del pool
+        return retval
+    return wrappedFunc
+
 class InputManager( object ):
     def __init__( self ):
-        self.__shouldStop = False
         self.__mouseEventsEnabled = False
         self.__qmKeycodes = [0, 0, 0]
         self.__isModal = False
         self.__inQuasimode = False
 
+    @nestedAutoreleasePooled
     def __timerCallback( self ):
         self.onTick( _TIMER_INTERVAL_IN_MS )
 
+    @nestedAutoreleasePooled
     def __keyCallback( self, info ):
         if info["event"] == "quasimodeStart":
             self.onKeypress( EVENT_KEY_QUASIMODE,
@@ -198,6 +227,10 @@ class InputManager( object ):
         logging.info( "Entering InputManager.run()" )
 
         app = AppKit.NSApplication.sharedApplication()
+
+        delegate = _AppDelegate.alloc().init()
+
+        app.setDelegate_( delegate )
 
         timer = sendMsg(
             _Timer.alloc(),
@@ -224,34 +257,21 @@ class InputManager( object ):
 
         keyNotifier = _KeyNotifierController()
         keyNotifier.start()
+        atexit.register( keyNotifier.stop )
 
         keyListener = sendMsg(
             _KeyListener.alloc(),
             "initWithCallback:", self.__keyCallback
             )
         keyListener.register()
+        atexit.register( keyListener.unregister )
 
-        try:
-            self.onInit()
-            while not self.__shouldStop:
-                #print "Waiting for event."
-                event = sendMsg(
-                    app,
-                    "nextEventMatchingMask:", 0xffff,
-                    "untilDate:", Foundation.NSDate.distantFuture(),
-                    "inMode:", AppKit.NSDefaultRunLoopMode,
-                    "dequeue:", objc.YES,
-                    )
-                if event:
-                    sendMsg( app, "sendEvent:", event )
-        finally:
-            keyListener.unregister()
-            keyNotifier.stop()
-
-        logging.info( "Exiting InputManager.run()" )
+        self.onInit()
+        app.run()
 
     def stop( self ):
-        self.__shouldStop = True
+        app = AppKit.NSApplication.sharedApplication()
+        app.terminate_( None )
 
     def enableMouseEvents( self, isEnabled ):
         # TODO: Implementation needed.

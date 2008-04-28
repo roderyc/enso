@@ -174,23 +174,6 @@ class TransparentWindow( object ):
         if self._surface:
             self._surface.finish()
             self._surface = None
-        # Because the NSGraphicsContext we made may not have released
-        # the NSBitmapImageRep when it was freed, we'll manually
-        # release it here.
-
-        # TODO: It's probably due either to a bug in PyObjC or a bug
-        # in this code (which is more likely) that we have to do this.
-        # Originally, we were *always* releasing self._imageRep here,
-        # until we made a seemingly-unrelated change to the code
-        # involving generators and started segfaulting here because we
-        # were referring to self._imageRep in the assertion a few
-        # lines below after we had manually released its last
-        # reference.
-        if self._imageRep.retainCount() > 1:
-            self._imageRep.release()
-        # Ensure that we're the last object holding on to the
-        # NSBitmapImageRep.
-        assert self._imageRep.retainCount() == 1
 
 def getDesktopSize():
     size = AppKit.NSScreen.mainScreen().frame().size
