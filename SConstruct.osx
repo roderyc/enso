@@ -11,9 +11,18 @@ ccBaseFlags = [
     "-Werror",   # GCC: Treat warnings as errors.
 ]
 
+opts = Options()
+opts.Add( "cairo_CFLAGS",
+          "C compiler flags for cairo, overriding pkg-config.", "" )
+opts.Add( "cairo_LIBS",
+          "Linker flags for cairo, overriding pkg-config.", "" )
+
 env = Environment(
     CCFLAGS = ccBaseFlags,
+    options = opts
     )
+
+Help( opts.GenerateHelpText(env) )
 
 # Add the Python library to our environment.
 env.Append(
