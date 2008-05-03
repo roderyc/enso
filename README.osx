@@ -15,11 +15,6 @@ outlined in the README:
   * Apple XCode tools
     This is needed for the gcc toolchain.
 
-  * cairo w/ experimental Quartz integration
-    This can be obtained through fink or macports.  Make sure you
-    provide the proper flags to enable the experimental Quartz
-    backend.
-
 In order for quasimodal keypresses to be properly detected on
 OS X, you must enable access for assistive devices in the Universal
 Access System Preferences.

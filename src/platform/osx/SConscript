@@ -41,26 +41,34 @@ def getOutput( params ):
 # Build Actions
 # ----------------------------------------------------------------------------
 
-# Flags needed for Python C extension modules, so that missing
+# cairo
+
+# Ideally, this would be integrated into this SCons build process, but
+# I ran into some unexpected dependency issues, so I'm just calling a
+# separate SCons instance. -AV
+
+import subprocess
+print "Building cairo..."
+retval = subprocess.call(["scons"], cwd=Dir("cairo").abspath)
+if retval != 0:
+    raise Exception("Building cairo failed.")
+print "Done."
+
+cairo_includepath = Dir("cairo/cairo-1.6.4-dist/include/cairo")
+cairo_libpath = Dir("cairo/cairo-1.6.4-dist/lib")
+
+# Flag needed for Python C extension modules, so that missing
 # Python symbols are looked-up (and found) when the module is loaded.
-FIND_MISSING_SYMS_AT_RUNTIME_FLAGS = "-undefined dynamic_lookup"
-
-cairoIncludeFlags = ARGUMENTS.get( "cairo_CFLAGS" )
-if not cairoIncludeFlags:
-   cairoIncludeFlags = getOutput( ["pkg-config", "cairo", "--cflags"] )
-
-cairoLibFlags = ARGUMENTS.get( "cairo_LIBS" )
-if not cairoLibFlags:
-   cairoLibFlags = getOutput( ["pkg-config", "cairo", "--libs"] )
+FIND_MISSING_SYMS_AT_RUNTIME_FLAGS = ["-undefined", "dynamic_lookup"]
 
 # quartz cairo bridge
 
 qcbEnv = env.Copy()
 
 qcbEnv.Append(
-    CPPPATH=["pycairo"],
-    CCFLAGS=cairoIncludeFlags.split(),
-    LINKFLAGS=" ".join([cairoLibFlags, FIND_MISSING_SYMS_AT_RUNTIME_FLAGS]),
+    CPPPATH=["pycairo", cairo_includepath],
+    LINKFLAGS=FIND_MISSING_SYMS_AT_RUNTIME_FLAGS,
+    LIBPATH=[cairo_libpath],
     LIBS=["cairo"],
     FRAMEWORKS=["AppKit"],
     )
@@ -96,8 +104,9 @@ env.Install( "#enso/platform/osx/selection", keyUtils )
 pycairoEnv = env.Copy()
 
 pycairoEnv.Append(
-    CCFLAGS=cairoIncludeFlags.split(),
-    LINKFLAGS=" ".join([cairoLibFlags, FIND_MISSING_SYMS_AT_RUNTIME_FLAGS])
+    CPPPATH=[cairo_includepath],
+    LINKFLAGS=FIND_MISSING_SYMS_AT_RUNTIME_FLAGS,
+    LIBPATH=[cairo_libpath]
     )
 
 # Pycairo may raise warnings, and that's okay--it's not our code.
