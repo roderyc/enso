@@ -68,7 +68,10 @@ this contributor will go much praise and beer.
 Troubleshooting
 ---------------
 
-For some reason, SCons isn't currently very easy to install on OS X.  The easiest way to install it is to obtain the tarball from www.scons.org; after unpacking it, cd into the scons directory and run:
+For some reason, SCons isn't currently very easy to install on OS X.
+The easiest way to install it is to obtain the tarball from
+www.scons.org; after unpacking it, cd into the scons directory and
+run:
 
   sudo python setup.py install
 
