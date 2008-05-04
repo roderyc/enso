@@ -47,8 +47,7 @@ def getOutput( params ):
 # I ran into some unexpected dependency issues, so I'm just calling a
 # separate SCons instance. -AV
 
-import subprocess
-print "Building cairo..."
+print "Building SCons..."
 retval = subprocess.call(["scons"], cwd=Dir("cairo").abspath)
 if retval != 0:
     raise Exception("Building cairo failed.")
@@ -110,3 +109,25 @@ pycairoEnv.Append( LINKFLAGS=FIND_MISSING_SYMS_AT_RUNTIME_FLAGS )
 pycairoEnv["CCFLAGS"].remove( "-Werror" )
 
 SConscript( "pycairo/SConscript", exports="pycairoEnv" )
+
+# App
+
+enso = env.Program( "main.m",
+                    FRAMEWORKS=["Cocoa", "Python"] )
+env.InstallAs( "#bin/Enso.app/Contents/MacOS/Enso", enso )
+env.Install( "#bin/Enso.app/Contents/Resources/bin",
+             keyNotifier )
+env.InstallAs( "#bin/Enso.app/Contents/Resources/main.py",
+               "#scripts/run_enso.py" )
+
+SConscript( "appdata/SConscript", exports="env" )
+
+# Wanted to use the Mkdir() action here, but it's throwing some
+# bizarre exception, so we'll just use the command line.
+Execute( "mkdir -p %s" % Dir("#bin/Enso.app/Contents/Resources/enso") )
+
+basepath = Dir("#").abspath
+ensoSymlink = basepath + "/bin/Enso.app/Contents/Resources/enso"
+
+Execute( "rm -rf %s" % ensoSymlink )
+Execute( "ln -s -f %s %s" % (Dir("#enso").abspath, ensoSymlink) )
