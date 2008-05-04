@@ -43,20 +43,12 @@ def getOutput( params ):
 
 # cairo
 
-# Ideally, this would be integrated into this SCons build process, but
-# I ran into some unexpected dependency issues, so I'm just calling a
-# separate SCons instance. -AV
+SConscript( "cairo/SConscript", exports="env" )
+Import( "cairo" )
 
-print "Building SCons..."
-retval = subprocess.call(["scons"], cwd=Dir("cairo").abspath)
-if retval != 0:
-    raise Exception("Building cairo failed.")
-print "Done."
+env = env.Copy()
 
-env.Append(
-    CPPPATH = [Dir("cairo/cairo-1.6.4-dist/include/cairo")],
-    LIBPATH = [Dir("cairo/cairo-1.6.4-dist/lib")]
-    )
+env.Append( CPPPATH = [cairo["include_dir"]], LIBPATH = [cairo["lib_dir"]] )
 
 # Flag needed for Python C extension modules, so that missing
 # Python symbols are looked-up (and found) when the module is loaded.
@@ -69,7 +61,7 @@ qcbEnv = env.Copy()
 qcbEnv.Append(
     CPPPATH=["pycairo"],
     LINKFLAGS=FIND_MISSING_SYMS_AT_RUNTIME_FLAGS,
-    LIBS=["cairo"],
+    LIBS=[cairo["lib"]],
     FRAMEWORKS=["AppKit"],
     )
 
