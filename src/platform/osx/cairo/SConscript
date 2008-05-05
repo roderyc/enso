@@ -68,6 +68,14 @@ def download_and_build(env, name, libname, configure_flags="",
         )
     env.Clean(lib, distdir)
 
+    if env["STANDALONE"]:
+        env.AddPostAction(
+            lib,
+            "install_name_tool -id @executable_path/%(libname)s %(lib)s" %
+            {"libname" : libname,
+             "lib" : lib.abspath}
+            )
+
     return lib, distdir
 
 env.Append(BUILDERS = {"Download" : Builder(action=download)})
@@ -97,6 +105,7 @@ cairo_lib, cairo_dir = download_and_build(
 
 cairo = {
     "lib" : cairo_lib,
+    "libs" : [cairo_lib, pixman_lib],
     "include_dir" : Dir("%s/include/cairo" % cairo_dir.abspath),
     "lib_dir" : Dir("%s/lib" % cairo_dir.abspath),
     "include_file" : File("%s/include/cairo/cairo.h" % cairo_dir.abspath),

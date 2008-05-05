@@ -112,6 +112,9 @@ env.Install( "#bin/Enso.app/Contents/Resources/bin",
 env.InstallAs( "#bin/Enso.app/Contents/Resources/main.py",
                "#scripts/run_enso.py" )
 
+if env["STANDALONE"]:
+    env.Install( "#bin/Enso.app/Contents/MacOS", cairo["libs"] )
+
 SConscript( "appdata/SConscript", exports="env" )
 
 # Wanted to use the Mkdir() action here, but it's throwing some
@@ -119,7 +122,15 @@ SConscript( "appdata/SConscript", exports="env" )
 Execute( "mkdir -p %s" % Dir("#bin/Enso.app/Contents/Resources/enso") )
 
 basepath = Dir("#").abspath
-ensoSymlink = basepath + "/bin/Enso.app/Contents/Resources/enso"
+ensoPkgDir = Dir("#enso").abspath
+ensoAppBundleDir = basepath + "/bin/Enso.app/Contents/Resources/enso"
 
-Execute( "rm -rf %s" % ensoSymlink )
-Execute( "ln -s -f %s %s" % (Dir("#enso").abspath, ensoSymlink) )
+Execute( "rm -rf %s" % ensoAppBundleDir )
+
+if env["STANDALONE"]:
+    # TODO: This needs to be fixed; we're copying the OLD contents
+    # of the enso directory before we actually carry out our SCons
+    # actions!
+    Execute( "cp -R %s %s" % (ensoPkgDir, ensoAppBundleDir) )
+else:
+    Execute( "ln -s -f %s %s" % (ensoPkgDir, ensoAppBundleDir) )

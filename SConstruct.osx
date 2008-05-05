@@ -12,6 +12,9 @@ ccBaseFlags = [
 ]
 
 opts = Options()
+opts.Add( BoolOption("STANDALONE",
+                     "Set to build a standalone app bundle.",
+                     0) )
 
 env = Environment(
     CCFLAGS = ccBaseFlags,
