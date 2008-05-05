@@ -36,6 +36,12 @@ def getOutput( params ):
         raise SystemError()
     return output
 
+def installIntoRoot( env, path, files, alwaysInAppResources=False ):
+    if env["STANDALONE"] or alwaysInAppResources:
+        env.Install( "#bin/Enso.app/Contents/Resources/" + path,
+                     files )
+    env.Install( "#" + path, files )
+
 
 # ----------------------------------------------------------------------------
 # Build Actions
@@ -70,7 +76,7 @@ quartzCairoBridge = qcbEnv.LoadableModule(
     target = ["quartz_cairo_bridge.so"],
     )
 
-qcbEnv.Install( "#enso/platform/osx", quartzCairoBridge )
+installIntoRoot( qcbEnv, "enso/platform/osx", quartzCairoBridge )
 
 # key notifier
 
@@ -79,7 +85,7 @@ keyNotifier = env.Program(
     FRAMEWORKS = ["ApplicationServices", "Foundation"]
     )
 
-env.Install( "#bin", keyNotifier )
+installIntoRoot( env, "bin", keyNotifier, alwaysInAppResources=True )
 
 # key utils
 
@@ -89,7 +95,7 @@ keyUtils = env.LoadableModule(
     FRAMEWORKS = ["ApplicationServices"]
     )
 
-env.Install( "#enso/platform/osx/selection", keyUtils )
+installIntoRoot( env, "enso/platform/osx/selection", keyUtils )
 
 # Pycairo
 
@@ -101,14 +107,14 @@ pycairoEnv.Append( LINKFLAGS=FIND_MISSING_SYMS_AT_RUNTIME_FLAGS )
 pycairoEnv["CCFLAGS"].remove( "-Werror" )
 
 SConscript( "pycairo/SConscript", exports="pycairoEnv" )
+Import( "pycairoLib" )
+installIntoRoot( pycairoEnv, "enso/platform/osx/cairo", pycairoLib )
 
 # App
 
 enso = env.Program( "main.m",
                     FRAMEWORKS=["Cocoa", "Python"] )
 env.InstallAs( "#bin/Enso.app/Contents/MacOS/Enso", enso )
-env.Install( "#bin/Enso.app/Contents/Resources/bin",
-             keyNotifier )
 env.InstallAs( "#bin/Enso.app/Contents/Resources/main.py",
                "#scripts/run_enso.py" )
 
@@ -117,20 +123,35 @@ if env["STANDALONE"]:
 
 SConscript( "appdata/SConscript", exports="env" )
 
-# Wanted to use the Mkdir() action here, but it's throwing some
-# bizarre exception, so we'll just use the command line.
-Execute( "mkdir -p %s" % Dir("#bin/Enso.app/Contents/Resources/enso") )
-
-basepath = Dir("#").abspath
 ensoPkgDir = Dir("#enso").abspath
-ensoAppBundleDir = basepath + "/bin/Enso.app/Contents/Resources/enso"
+ensoAppBundleDir = Dir("#").abspath + "/bin/Enso.app/Contents/Resources/enso"
 
-Execute( "rm -rf %s" % ensoAppBundleDir )
+def isSymLink( path ):
+    if os.path.exists( path ):
+        try:
+            os.readlink( path )
+            return True
+        except OSError:
+            pass
+    return False
 
 if env["STANDALONE"]:
-    # TODO: This needs to be fixed; we're copying the OLD contents
-    # of the enso directory before we actually carry out our SCons
-    # actions!
-    Execute( "cp -R %s %s" % (ensoPkgDir, ensoAppBundleDir) )
+    if isSymLink( ensoAppBundleDir ):
+        Execute( "rm %s" % ensoAppBundleDir )
+    for dirpath, dirnames, filenames in os.walk( ensoPkgDir ):
+        if ".svn" in dirnames:
+            dirnames.remove( ".svn" )
+        pyfiles = [filename for filename in filenames
+                   if filename.endswith(".py")]
+        for filename in pyfiles:
+            abspath = os.path.join( dirpath, filename )
+            reldir = dirpath[len(ensoPkgDir)+1:]
+            env.Install( os.path.join(ensoAppBundleDir, reldir),
+                         abspath )
 else:
-    Execute( "ln -s -f %s %s" % (ensoPkgDir, ensoAppBundleDir) )
+    if not isSymLink( ensoAppBundleDir ):
+        if os.path.exists( ensoAppBundleDir ):
+            Execute( "rm -rf %s" % ensoAppBundleDir )
+        else:
+            Execute( "mkdir -p %s" % ensoAppBundleDir )
+        Execute( "ln -s -f %s %s" % (ensoPkgDir, ensoAppBundleDir) )
