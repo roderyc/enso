@@ -228,9 +228,13 @@ class InputManager( object ):
 
         app = AppKit.NSApplication.sharedApplication()
 
-        delegate = _AppDelegate.alloc().init()
-
-        app.setDelegate_( delegate )
+        if not app.delegate():
+            logging.info( "Attaching app delegate." )
+            delegate = _AppDelegate.alloc().init()
+            app.setDelegate_( delegate )
+        else:
+            logging.info( "An app delegate is already attached; "
+                          "skipping installation." )
 
         timer = sendMsg(
             _Timer.alloc(),
@@ -267,7 +271,13 @@ class InputManager( object ):
         atexit.register( keyListener.unregister )
 
         self.onInit()
-        app.run()
+
+        if not app.isRunning():
+            logging.info( "Calling app.run()." )
+            app.run()
+        else:
+            logging.info( "Application appears to be running already; "
+                          "skipping app.run()." )
 
     def stop( self ):
         app = AppKit.NSApplication.sharedApplication()
