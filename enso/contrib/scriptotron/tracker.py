@@ -69,12 +69,8 @@ class ScriptTracker:
         # in platform-specific backends.
         self._scriptFilename = os.path.join( os.environ["HOME"],
                                              SCRIPTS_FILE_NAME )
-        self._fileDependencies = [
-            self._scriptFilename
-            ]
         self._lastMods = {}
-        for fileName in self._fileDependencies:
-            self._lastMods[fileName] = None
+        self._registerDependencies()
 
         eventManager.registerResponder(
             self._updateScripts,
@@ -106,13 +102,32 @@ class ScriptTracker:
         if allGlobals is not None:
             infos = cmdretriever.getCommandsFromObjects( allGlobals )
             self._scriptCmdTracker.registerNewCommands( infos )
+            self._registerDependencies( allGlobals )
+
+    def _registerDependencies( self, allGlobals = None ):
+        baseDeps = [ self._scriptFilename ]
+
+        if allGlobals:
+            # Find any other files that the script may have executed
+            # via execfile().
+            extraDeps = [
+                obj.func_code.co_filename
+                for obj in allGlobals.values()
+                if ( (hasattr(obj, "__module__")) and
+                     (obj.__module__ is None) and 
+                     (hasattr(obj, "func_code")) )
+                ]
+        else:
+            extraDeps = []
+
+        self._fileDependencies = list( set(baseDeps + extraDeps) )
 
     def _updateScripts( self ):
         shouldReload = False
         for fileName in self._fileDependencies:
             if os.path.exists( fileName ):
                 lastMod = os.stat( fileName ).st_mtime
-                if lastMod != self._lastMods[fileName]:
+                if lastMod != self._lastMods.get(fileName):
                     self._lastMods[fileName] = lastMod
                     shouldReload = True
 
