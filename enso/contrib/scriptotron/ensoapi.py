@@ -14,6 +14,9 @@ class EnsoApi(object):
         parameters should be unicode strings.
         """
 
+        if not isinstance(msg, basestring):
+            msg = unicode(msg)
+
         msg = xml.sax.saxutils.escape(msg)
         xmltext = "<p>%s</p>" % msg
         if caption:
