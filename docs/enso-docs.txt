@@ -82,3 +82,30 @@ The remainder of this documentation assumes that you have Enso up and
 running, and can use it to execute commands.
 
 .. _`retrieving the code`: http://code.google.com/p/enso/source/checkout
+
+==============
+Extending Enso
+==============
+
+Enso Plugins and The ``.ensorc`` File
+=====================================
+
+One way to extend and customize Enso is through the use of
+**plugins**.  A plugin is just a Python module or package with a
+single function in it, ``load()``, which takes no parameters, and is
+called when the Enso quasimode is about to start itself.
+
+The easiest way to add a plugin is through an ``.ensorc`` file, which
+can be created in your home directory (if you're on Windows, this
+directory is pointed to by the ``HOME`` environment variable).  This
+file is actually just a Python script that's executed before any other
+code when Enso starts up.
+
+The following ``.ensorc`` tells Enso to load a plugin contained at
+``mypackage.myplugin``::
+
+  import enso.config
+
+  enso.config.PLUGINS.extend(
+    ["mypackage.myplugin"]
+    )
