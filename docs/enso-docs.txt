@@ -1,0 +1,84 @@
+.. contents::
+
+============
+Introduction
+============
+
+The Enso Project is the open-source release of Enso, an extensible,
+cross-platform, graphical command-line interface written in Python.
+
+Enso's goal is to provide a way of accessing whatever piece of
+functionality you need--be it calculating an expression, calling up
+a map, or performing a Google search--with a few, semantically
+meaningful keystrokes.
+
+Enso was originally commercial software created and sold by
+`Humanized, Inc`_. In early 2008, a new BSD-licensed open-source
+repository was created for Enso, and much of its code was inherited
+from the commercial version.
+
+Commercial Enso vs. Open-Source Enso
+====================================
+
+The version of Enso that can be downloaded from The Humanized Website
+is known as the "commercial" version of Enso; it is sometimes also
+called the "frozen" version of Enso.
+
+Commercial Enso is a binary-only distribution, based on a closed-source
+code-line kept on a private SVN server. Development on it has ceased
+and will not be resumed. Development-wise, it is a dead end; but it
+will continue to be the version that users download and install, and
+Humanized will continue to distribute and support it, until such time
+as development on the open source Enso code-line creates a suitable
+replacement.
+
+Commercial Enso runs on Windows 2000, XP, and Vista only.
+
+Open-Source Enso consists of the code tree located at `The Enso
+Project`_ and was started "from scratch" in early 2008.  Modules and
+chunks of code were rapidly brought over from the old code and
+integrated; this process could be thought of as a combination of code
+migration and massive refactoring to remove all the cruft that Enso no
+longer needed, and to make Enso more flexible towards certain things
+that it needs to support better, such as internationalization and
+cross-platform support.
+
+Once Open-Source Enso matures to the point that it's at least as
+functional and stable as Commercial Enso, we'll also package and
+distribute a pre-compiled binary in whatever way is most humane for
+non-technical end users.
+
+.. _`The Enso Project`: http://code.google.com/p/enso
+
+More Information
+================
+
+For more information about the use of and philosophy behind Enso, you
+may want to visit the following resources:
+
+  * `The Enso Product Page`_ on humanized.com
+  * `The Graphical Keyboard User Interface`_ by Alex Faaborg
+  * `The Linguistic Command Line`_ by Aza Raskin
+
+.. _`Humanized, Inc`: http://www.humanized.com
+.. _`The Enso Product Page`: http://www.humanized.com/enso
+.. _`The Graphical Keyboard User Interface`: http://blog.mozilla.com/faaborg/2007/07/05/the-graphical-keyboard-user-interface/
+.. _`The Linguistic Command Line`: http://mags.acm.org/interactions/20080102/?pg=20&pm=2
+
+============
+Getting Enso
+============
+
+At present, the primary way to obtain Enso is by `retrieving the
+code`_ via Subversion.  Once that is done, please read the ``README``
+file contained in the root directory to build the software.
+
+In the future, pre-built binaries of Enso will be available on
+relevant platforms so that those who are developing commands for Enso
+(as opposed those who are developing Enso itself) will be able to use
+it without needing a C compiler.
+
+The remainder of this documentation assumes that you have Enso up and
+running, and can use it to execute commands.
+
+.. _`retrieving the code`: http://code.google.com/p/enso/source/checkout
