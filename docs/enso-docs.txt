@@ -85,6 +85,158 @@ running, and can use it to execute commands.
 Extending Enso
 ==============
 
+Creating Enso Commands
+======================
+
+Creating, running, and modifying Enso commands is intended to be as
+easy as possible.  To create a command, simply create an
+``.ensocommands`` file in your home directory if it doesn't already
+exist (if you're on Windows, this directory is pointed to by the
+``HOME`` environment variable).  This file is just a Python script
+containing classes and functions representing available commands.
+
+Hello World: Displaying Transparent Messages
+--------------------------------------------
+
+A simple command called "hello world" can be created by entering the
+following into your .ensocommands file::
+
+  def cmd_hello_world(ensoapi):
+    ensoapi.display_message("Hello World!")
+
+As soon as the ``.ensocommands`` file is saved, the Enso quasimode can
+be entered and the command used: Enso scans this file and its
+dependencies whenever the quasimode is entered, and if the contents
+have changed, Enso reloads them, so there is never a need to restart
+Enso itself when developing commands.
+
+[TODO: Insert image/video here.]
+
+From the source code of the command, a number of things can be
+observed:
+
+  * A command is a function that starts with the prefix ``cmd_``.
+  * The name of a command is everything following the prefix,
+    with underscores converted to spaces.
+  * A command takes an ``ensoapi`` object as a parameter, which can
+    be used to access Enso-specific functionality.
+
+You may want to take the time to play around with the "hello world"
+example; try raising an exception in the function body; try adding a
+syntax error in the file and see what happens.  It should be apparent
+that such human errors have been accounted for and are handled in a
+way that is considerate of one's frailties, allowing the programmer to
+write and test code with minimal interruptions to their train of
+thought.
+
+Adding Help Text
+----------------
+
+When using the "hello world" command, you may notice that the help
+text displayed above the command entry display isn't very helpful.
+You can set it to something nicer by adding a docstring to your
+command function, like so::
+
+  def cmd_hello_world(ensoapi):
+    "Displays a friendly greeting."
+
+    ensoapi.display_message("Hello World!")
+
+If you add anything past a first line in the docstring, it will be
+rendered as HTML in the documentation for the command when the user
+runs the "help" command::
+
+  def cmd_hello_world(ensoapi):
+    """
+    Displays a friendly greeting.
+
+    This command can be used in any application, at any time,
+    providing you with a hearty salutation at a moment's notice.
+    """
+
+    ensoapi.display_message("Hello World!")
+
+Interacting with The Current Selection
+--------------------------------------
+
+To obtain the current selection, use ``ensoapi.get_selection()``.
+This method returns a *selection dictionary*, or seldict for short.  A
+seldict is simply a dictionary that maps a data format identifier to
+selection data in that format.
+
+Some valid data formats in a seldict are:
+
+  * ``text``: Plain unicode text of the current selection.
+  * ``files``: A list of filenames representing the current selection.
+
+[TODO: Provide a link to the reference for all data types]
+
+Setting the current selection works similarly: just pass
+``ensoapi.set_selection()`` a seldict containing the selection data to
+set.
+
+The following is an implementation of an "upper case" command that
+converts the user's current selection to upper case::
+
+  def cmd_upper_case(ensoapi):
+    text = ensoapi.get_selection().get("text")
+    if text:
+      ensoapi.set_selection({"text" : text.upper()})
+    else:
+      ensoapi.display_message("No selection!")
+
+Command Arguments
+-----------------
+
+It's possible for a command to take arbitrary arguments; an example of
+this is the "google" command, which allows you to optionally specify a
+search term following the command name.  To create a command like
+this, just add a parameter to the command function::
+
+  def cmd_boogle(ensoapi, query):
+    ensoapi.display_message("You said: %s" % query)
+
+Unless you specify a default for your argument, however, a friendly
+error message will be displayed when the user runs the command without
+specifying one.  If you don't want this to be the case, just add a
+default argument to the command function::
+
+  def cmd_boogle(ensoapi, query="pants"):
+    ensoapi.display_message("You said: %s" % query)
+
+If you want the argument to be bounded to a particular set of options,
+you can specify them by attaching a ``valid_args`` property to your
+command function.  For instance::
+
+  def cmd_vote_for(ensoapi, candidate):
+    ensoapi.display_message("You voted for: %s" % candidate)
+  cmd_vote_for.valid_args = ["barack obama", "john mccain"]
+
+Prolonged Execution
+-------------------
+
+It's expected that some commands, such as ones that need to fetch
+resources from the internet, may take some time to execute.  If this
+is the case, a command function may use Python's ``yield`` statement
+to return control back to Enso when it needs to wait for something to
+finish.  For example::
+
+  def cmd_rest_awhile(ensoapi):
+    import time, threading
+
+    def do_something():
+      time.sleep(3)
+    t = threading.Thread(target = do_something)
+    t.start()
+    ensoapi.display_message("Please wait...")
+    while t.isAlive():
+      yield
+    ensoapi.display_message("Done!")
+
+Returning control back to Enso is highly encouraged--without it, your
+command will monopolize Enso's resources and you won't be able to use
+Enso until your command has finished executing!
+
 Enso Plugins and The ``.ensorc`` File
 =====================================
 
