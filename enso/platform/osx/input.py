@@ -87,9 +87,29 @@ CASE_INSENSITIVE_KEYCODE_MAP = {
     27: "-",
     }
 
+def _getRunningProcessInfo():
+    popen = subprocess.Popen( ["ps", "-ef"], stdout=subprocess.PIPE )
+    output, errors = popen.communicate()
+    info = []
+    for line in output.splitlines()[1:]:
+        parts = line.split()
+        pid = int( parts[1] )
+        cmd = " ".join( parts[7:] )
+        info.append( {"pid" : pid, "cmd" : cmd} )
+    return info
+
 class _KeyNotifierController( object ):
     def __init__( self ):
         pass
+
+    def __killExistingKeyNotifiers( self ):
+        # TODO: This may get processes that aren't the key notifier,
+        # e.g. 'nano EnsoKeyNotifier.m'.
+        infos = [ info for info in _getRunningProcessInfo()
+                  if "EnsoKeyNotifier" in info["cmd"] ]
+        for info in infos:
+            logging.info( "Killing existing key notifier %d." % info["pid"] )
+            os.kill( info["pid"], signal.SIGKILL )
 
     def __tryToStartKeyNotifier( self, path="" ):
         fullPath = os.path.join( path, "EnsoKeyNotifier" )
@@ -98,6 +118,7 @@ class _KeyNotifierController( object ):
         return popen
 
     def start( self ):
+        self.__killExistingKeyNotifiers()
         try:
             # First see if the key notifier is on our path...
             popen = self.__tryToStartKeyNotifier()
