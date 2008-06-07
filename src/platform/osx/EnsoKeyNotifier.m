@@ -1,3 +1,4 @@
+#include <AppKit/NSWorkspace.h>
 #include <ApplicationServices/ApplicationServices.h>
 #import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSDistributedNotificationCenter.h>
@@ -33,10 +34,10 @@ static void sendSomeKeyEvent( void )
             userInfo: dict];
 }
 
-CGEventRef myCallback( CGEventTapProxy proxy,
-                       CGEventType type,
-                       CGEventRef event,
-                       void *refcon )
+CGEventRef processEvent( CGEventTapProxy proxy,
+                         CGEventType type,
+                         CGEventRef event,
+                         void *refcon )
 {
     //int64_t keycode = CGEventGetIntegerValueField(
     //    event,
@@ -160,6 +161,28 @@ CGEventRef myCallback( CGEventTapProxy proxy,
         return event;
     else
         return NULL;
+}
+
+CGEventRef myCallback( CGEventTapProxy proxy,
+                       CGEventType type,
+                       CGEventRef event,
+                       void *refcon )
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    CGEventRef retval;
+    NSString *bundleId = [[[NSWorkspace sharedWorkspace] activeApplication] objectForKey: @"NSApplicationBundleIdentifier"];
+
+    if (bundleId &&
+        [bundleId isEqualToString: @"com.blizzard.worldofwarcraft"])
+    {
+        retval = event;
+    } else {
+        retval = processEvent(proxy, type, event, refcon);
+    }
+
+    [pool release];
+
+    return retval;
 }
 
 int main( int argc, const char *argv[] )

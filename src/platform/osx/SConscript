@@ -82,7 +82,7 @@ installIntoRoot( qcbEnv, "enso/platform/osx", quartzCairoBridge )
 
 keyNotifier = env.Program(
     source = ["EnsoKeyNotifier.m"],
-    FRAMEWORKS = ["ApplicationServices", "Foundation"]
+    FRAMEWORKS = ["ApplicationServices", "Foundation", "AppKit"]
     )
 
 installIntoRoot( env, "bin", keyNotifier, alwaysInAppResources=True )
