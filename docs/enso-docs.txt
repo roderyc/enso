@@ -126,7 +126,7 @@ observed:
   * The name of a command is everything following the prefix,
     with underscores converted to spaces.
   * A command takes an ``ensoapi`` object as a parameter, which can
-    be used to access Enso-specific functionality.
+    be used to access Enso-specific functionality. [#]_
 
 You may want to take the time to play around with the "hello world"
 example; try raising an exception in the function body; try adding a
@@ -135,6 +135,16 @@ that such human errors have been accounted for and are handled in a
 way that is considerate of one's frailties, allowing the programmer to
 write and test code with minimal interruptions to their train of
 thought.
+
+.. [#] One may wonder why the ``ensoapi`` object has to be explicitly
+   passed-in rather than being imported.  The reasons for this are
+   manifold: firstly, importing a specific module, e.g. ``enso.api``,
+   would tie the command to a particular implementation of the Enso
+   API.  Yet it should be possible for the command to run in different
+   kinds of contexts--for instance, one where Enso itself is in a
+   separate process or even on a separate computer, and ``ensoapi`` is
+   just a proxy object.  Secondly, explicitly passing in the object
+   makes the unit testing of commands easier.
 
 Adding Help Text
 ----------------
@@ -243,6 +253,60 @@ finish.  For example::
 Returning control back to Enso is highly encouraged--without it, your
 command will monopolize Enso's resources and you won't be able to use
 Enso until your command has finished executing!
+
+Class-based Commands
+--------------------
+
+More complex commands can be encapsulated into classes and
+instantiated as objects; in fact, all Enso really looks for when
+importing commands are callables that start with ``cmd_``.  This means
+that the following works:
+
+  class VoteCommand(object):
+    def __init__(self, candidates):
+      self.valid_args = candidates
+
+    def __call__(self, ensoapi, candidate):
+      ensoapi.display_message("You voted for: %s" % candidate)
+
+  cmd_vote_for = VoteCommand(["barack obama", "john mccain"])
+
+Command Updating
+----------------
+
+Some commands may need to do processing while not being executed; for
+instance, an ``open`` command that allows the user to open an
+application installed on their computer may want to update its
+``valid_args`` property whenever a new application is installed or
+uninstalled.
+
+If a command object has an ``on_quasimode_start()`` function attached
+to it, it will be called whenever the command quasimode is entered.
+This allows the command to do any processing it may need to do.  As
+with the command execution call itself, ``on_quasimode_start()`` may
+use ``yield`` to relegate control back to Enso when it knows that some
+operation will take a while to finish.
+
+Including Other Files
+---------------------
+
+The ``.ensocommands`` file may include other files containing command
+definitions by using Python's ``execfile()`` built-in method.  Enso
+automatically keeps track of what files command objects come from; if
+any of those files change, it reloads ``.ensocommands``, which should
+in turn reload those files.
+
+Python's standard ``import`` statement can also be used from command
+scripts, of course, but the disadvantage of doing this with evolving
+code is that--at present, at least--imported modules won't be reloaded
+if their contents change. [#]_
+
+.. [#] This feature in particular is something that can, and probably
+   will change a lot in the future, as code reuse via ``execfile()``
+   isn't particularly Pythonic.  Other options, among others, include
+   having commands live in their own process, their own tinypy-based
+   virtual machine, and autodetecting changes in modules and
+   re-importing them like Django's development server does.
 
 Enso Plugins and The ``.ensorc`` File
 =====================================
