@@ -41,12 +41,19 @@ longer needed, and to make Enso more flexible towards certain things
 that it needs to support better, such as internationalization and
 cross-platform support.
 
+Another way to view the difference is that Commercial Enso `embeds`
+Python, whereas Open-Source Enso attempts to `extend` Python.  The
+difference between the two, and their implications, is nicely
+summarized in Glyph Lefkowitz's article `Extending vs. Embedding:
+There is Only One Correct Decision`_.
+
 Once Open-Source Enso matures to the point that it's at least as
 functional and stable as Commercial Enso, we'll also package and
 distribute a pre-compiled binary in whatever way is most humane for
 non-technical end users.
 
 .. _`The Enso Project`: http://code.google.com/p/enso
+.. _`Extending vs. Embedding: There is Only One Correct Decision`: http://twistedmatrix.com/users/glyph/rant/extendit.html
 
 More Information
 ================
@@ -110,7 +117,7 @@ dependencies whenever the quasimode is entered, and if the contents
 have changed, Enso reloads them, so there is never a need to restart
 Enso itself when developing commands.
 
-[TODO: Insert image/video here.]
+.. TODO: Insert image/video here.
 
 From the source code of the command, a number of things can be
 observed:
@@ -169,7 +176,7 @@ Some valid data formats in a seldict are:
   * ``text``: Plain unicode text of the current selection.
   * ``files``: A list of filenames representing the current selection.
 
-[TODO: Provide a link to the reference for all data types]
+.. TODO: Provide a link to the reference for all data types
 
 Setting the current selection works similarly: just pass
 ``ensoapi.set_selection()`` a seldict containing the selection data to
