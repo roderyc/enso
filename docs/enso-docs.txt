@@ -260,7 +260,7 @@ Class-based Commands
 More complex commands can be encapsulated into classes and
 instantiated as objects; in fact, all Enso really looks for when
 importing commands are callables that start with ``cmd_``.  This means
-that the following works:
+that the following works::
 
   class VoteCommand(object):
     def __init__(self, candidates):
